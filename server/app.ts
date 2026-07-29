@@ -58,6 +58,13 @@ app.get('/health', (req: Request, res: Response) => {
   res.send('Health is ok.');
 });
 
+app.get("/", (req: Request, res: Response) => {
+  res.status(200).json({
+    success: true,
+    message: "Backend is running",
+  });
+});
+
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1', UserRoutes);
 app.use('/api/v1/roles', roleRoutes);
@@ -73,6 +80,7 @@ notificationService.init(io);
 
 export const userConnectionDetails = notificationService.userConnectionDetails;
 
-server.listen(3000, () => {
-  console.log('✅ Server is running on port 3000');
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log(`✅ Server is running on port ${PORT}`);
 });
