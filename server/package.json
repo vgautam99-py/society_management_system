@@ -5,7 +5,8 @@
   "main": "app.js",
   "scripts": {
     "dev": "tsx watch index.ts",
-    "start": "tsx index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
     "seed:role": "tsx ./seeders/seedRole.ts",
     "seed:user": "tsx ./seeders/seedUser.ts",
     "seed:flat": "tsx ./seeders/seedFlat.ts"
