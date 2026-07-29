@@ -22,9 +22,12 @@ dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
+const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+
 const io = new Server(server, {
   cors: {
-    origin: 'http://localhost:5173',
+    origin: clientUrl,
+    credentials: true,
   },
 });
 
@@ -33,7 +36,7 @@ app.use('/public', express.static(path.join(process.cwd(), 'public')));
 
 app.use(
   cors({
-    origin: 'http://localhost:5173',
+    origin: clientUrl,
     credentials: true,
   })
 );
