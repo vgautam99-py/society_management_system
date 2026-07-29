@@ -1,0 +1,67 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+  /* 🎨 Design System Colors */
+  --color-primary-700: #1d4ed8;
+  --color-primary-600: #2563eb;
+  --color-primary-500: #3b82f6;
+  --color-primary-100: #dbeafe;
+  --color-primary-50: #eff6ff;
+  --color-sidebar: #1e3a8a;
+  --color-slate-900: #0f172a;
+  --color-slate-700: #334155;
+  --color-slate-500: #64748b;
+  --color-slate-200: #e2e8f0;
+  --color-slate-50: #f8fafc;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-info: #0ea5e9;
+
+  /* 🏗️ Border Radius Tokens */
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-avatar: 14px;
+  --radius-pill: 9999px;
+  --radius-circle: 50%;
+}
+
+body {
+  color: #334155;
+  background-color: #f8fafc;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Base selection color override */
+::selection {
+  background: #3b82f6;
+  color: white;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* Custom print styles to remove browser headers and footers (date, URL, page number) from printed PDF */
+@media print {
+  @page {
+    size: auto;
+    margin: 0mm;
+  }
+  body {
+    background-color: white !important;
+    margin: 1.6cm !important;
+  }
+}
