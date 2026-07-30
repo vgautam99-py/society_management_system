@@ -10,7 +10,8 @@ function App() {
   const [socket, setSocket] = useState<Socket | null>(null);
 
   useEffect(() => {
-    const socketInstance = io('http://localhost:3000');
+    const socketUrl = (import.meta.env.VITE_API_URL || 'http://localhost:3000').replace('/api/v1', '');
+    const socketInstance = io(socketUrl);
     setSocket(socketInstance);
 
     socketInstance.on('connect', () => {

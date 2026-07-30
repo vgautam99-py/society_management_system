@@ -64,7 +64,8 @@ const LayoutWrapper = ({ children, navItems }: LayoutWrapperProps) => {
 
   // Set up socket connection and new_complaint listener for Admins
   useEffect(() => {
-    const socketInstance = io('http://localhost:3000');
+    const socketUrl = (import.meta.env.VITE_API_URL || 'http://localhost:3000').replace('/api/v1', '');
+    const socketInstance = io(socketUrl);
 
     socketInstance.on('connect', () => {
       console.log('🔌 WebSocket connected in LayoutWrapper');

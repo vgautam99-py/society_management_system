@@ -53,7 +53,8 @@ export const runAutomatedBilling = async (): Promise<void> => {
 
       try {
         const pdfBuffer = await generateBillPDF(populatedBill);
-        const paymentLink = `http://localhost:5173/payment/checkout/${bill._id}`;
+        const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+        const paymentLink = `${clientUrl}/payment/checkout/${bill._id}`;
 
         await transporter.sendMail({
           from: `SMS Society Portal <${process.env.SMTP_USER}>`,

@@ -27,7 +27,8 @@ export const generateBillPDF = (bill: any): Promise<Buffer> => {
     
     // Add payment gateway link
     doc.fillColor('#2563eb').text(`Click here to Pay with Razorpay:`, { underline: true });
-    const paymentLink = `http://localhost:5173/payment/checkout/${bill._id}`;
+    const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+    const paymentLink = `${clientUrl}/payment/checkout/${bill._id}`;
     doc.fillColor('#1d4ed8').text(paymentLink, { link: paymentLink });
     
     doc.end();
