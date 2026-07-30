@@ -54,15 +54,15 @@ app.use((req: any, res: Response, next: NextFunction) => {
   next();
 });
 
-app.get('/health', (req: Request, res: Response) => {
-  res.send('Health is ok.');
-});
-
 app.get("/", (req: Request, res: Response) => {
   res.status(200).json({
     success: true,
     message: "Backend is running",
   });
+});
+
+app.get('/health', (req: Request, res: Response) => {
+  res.send('Health is ok.');
 });
 
 app.use('/api/v1/auth', authRoutes);
