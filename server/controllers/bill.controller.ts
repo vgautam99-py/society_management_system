@@ -201,37 +201,40 @@ export const completePayment = async (req: Request, res: Response) => {
     bill.transactionId = transactionId || `TXN-${Date.now()}`;
     await bill.save();
 
-    // Try to email receipt
+    // Try to email receipt in background to prevent payment gateway timeout
     if (bill.resident) {
-      try {
-        const pdfBuffer = await generateBillPDF(await bill.populate('flat'));
-        await transporter.sendMail({
-          from: `SMS Society Portal <${process.env.SMTP_USER}>`,
-          to: (bill.resident as any).email,
-          subject: `✅ Payment Confirmation Receipt - ${bill.title}`,
-          html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
-              <h2 style="color: #16a34a;">Payment Successful!</h2>
-              <p>Dear ${(bill.resident as any).name},</p>
-              <p>We have successfully received your payment of <strong>INR ${bill.amount.toLocaleString()}</strong> for <strong>${bill.title}</strong>.</p>
-              <p>The transaction receipt PDF is attached for your records.</p>
-              <table style="width: 100%; font-size: 14px; margin-top: 15px; border-top: 1px solid #e2e8f0; padding-top: 15px;">
-                <tr><td><strong>Transaction ID:</strong></td><td>${bill.transactionId}</td></tr>
-                <tr><td><strong>Payment Method:</strong></td><td style="text-transform: uppercase;">${bill.paymentMethod}</td></tr>
-                <tr><td><strong>Date:</strong></td><td>${bill.paymentDate.toLocaleString()}</td></tr>
-              </table>
-            </div>
-          `,
-          attachments: [
-            {
-              filename: `Receipt_${bill.title.replace(' ', '_')}.pdf`,
-              content: pdfBuffer,
-            }
-          ]
+      generateBillPDF(await bill.populate('flat'))
+        .then((pdfBuffer) => {
+          transporter.sendMail({
+            from: `SMS Society Portal <${process.env.SMTP_USER}>`,
+            to: (bill.resident as any).email,
+            subject: `✅ Payment Confirmation Receipt - ${bill.title}`,
+            html: `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
+                <h2 style="color: #16a34a;">Payment Successful!</h2>
+                <p>Dear ${(bill.resident as any).name},</p>
+                <p>We have successfully received your payment of <strong>INR ${bill.amount.toLocaleString()}</strong> for <strong>${bill.title}</strong>.</p>
+                <p>The transaction receipt PDF is attached for your records.</p>
+                <table style="width: 100%; font-size: 14px; margin-top: 15px; border-top: 1px solid #e2e8f0; padding-top: 15px;">
+                  <tr><td><strong>Transaction ID:</strong></td><td>${bill.transactionId}</td></tr>
+                  <tr><td><strong>Payment Method:</strong></td><td style="text-transform: uppercase;">${bill.paymentMethod}</td></tr>
+                  <tr><td><strong>Date:</strong></td><td>${bill.paymentDate?.toLocaleString() || new Date().toLocaleString()}</td></tr>
+                </table>
+              </div>
+            `,
+            attachments: [
+              {
+                filename: `Receipt_${bill.title.replace(' ', '_')}.pdf`,
+                content: pdfBuffer,
+              }
+            ]
+          }).catch((err: any) => {
+            console.warn("⚠️ SMTP invoice email failed in background:", err.message);
+          });
+        })
+        .catch((err: any) => {
+          console.error("⚠️ PDF receipt generation failed in background:", err.message);
         });
-      } catch (err: any) {
-        console.warn("⚠️ SMTP invoice email failed:", err.message);
-      }
     }
 
     res.status(200).json({ message: 'Payment completed successfully', data: bill });

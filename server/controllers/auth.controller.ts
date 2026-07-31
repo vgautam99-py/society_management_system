@@ -35,17 +35,15 @@ export const sendOtp = async (req: Request, res: Response) => {
     user.otpExpiresIn = new Date(Date.now() + 5 * 60 * 1000); // 5 mins validity
     await user.save();
 
-    // Try to send email, catch errors silently but log it
-    try {
-      await transporter.sendMail({
-        from: `SMS Portal <${process.env.SMTP_USER}>`,
-        to: user.email,
-        subject: '🔐 Your SMS Portal Login OTP',
-        html: twoFactorOtpTemplate(otp, user.name),
-      });
-    } catch (err: any) {
+    // Send email in the background asynchronously to prevent API timeout
+    transporter.sendMail({
+      from: `SMS Portal <${process.env.SMTP_USER}>`,
+      to: user.email,
+      subject: '🔐 Your SMS Portal Login OTP',
+      html: twoFactorOtpTemplate(otp, user.name),
+    }).catch((err: any) => {
       console.warn("⚠️ SMTP service failed. Welcome email skipped:", err.message);
-    }
+    });
 
     // Always output to console for easy testing / debugging fallback
     console.log(`✉️ [OTP Generated] User: ${user.email} | OTP Code: ${otp}`);
@@ -80,16 +78,14 @@ export const sendRegistrationOtp = async (req: Request, res: Response) => {
       expires: new Date(Date.now() + 10 * 60 * 1000), // valid for 10 minutes
     });
 
-    try {
-      await transporter.sendMail({
-        from: `SMS Portal <${process.env.SMTP_USER}>`,
-        to: email,
-        subject: '🔐 Confirm Your SMS Portal Registration',
-        html: twoFactorOtpTemplate(otp, 'Valued Resident'),
-      });
-    } catch (err: any) {
+    transporter.sendMail({
+      from: `SMS Portal <${process.env.SMTP_USER}>`,
+      to: email,
+      subject: '🔐 Confirm Your SMS Portal Registration',
+      html: twoFactorOtpTemplate(otp, 'Valued Resident'),
+    }).catch((err: any) => {
       console.warn("⚠️ SMTP failed. Send registration OTP email skipped:", err.message);
-    }
+    });
 
     console.log(`✉️ [Registration OTP Generated] Email: ${email} | OTP Code: ${otp}`);
 
@@ -102,16 +98,19 @@ export const sendRegistrationOtp = async (req: Request, res: Response) => {
   }
 };
 
-// Register Admin & Society
+// Register Admin & Society with OTP Verification
 export const register = async (req: Request, res: Response) => {
   try {
-    const { name, email, phone, password, societyName } = req.body;
+    const { name, email, phone, password, societyName, otp } = req.body;
 
     if (!societyName) {
       return res.status(400).json({ message: 'Society Name is required.' });
     }
     if (!password) {
       return res.status(400).json({ message: 'Password is required.' });
+    }
+    if (!otp) {
+      return res.status(400).json({ message: 'Verification OTP is required.' });
     }
 
     const user = await User.findOne({ email });
@@ -120,6 +119,20 @@ export const register = async (req: Request, res: Response) => {
         message: `User already exists with ${email}. Please try with another email.`,
       });
     }
+
+    // Verify OTP
+    const cachedOtp = tempOtps.get(email.toLowerCase());
+    if (!cachedOtp || new Date() > cachedOtp.expires) {
+      return res.status(400).json({ message: 'OTP has expired or is invalid. Please request a new OTP.' });
+    }
+
+    const match = await bcrypt.compare(otp, cachedOtp.otpHash);
+    if (!match) {
+      return res.status(400).json({ message: 'Invalid OTP code. Please try again.' });
+    }
+
+    // Clear registration OTP cache upon successful register
+    tempOtps.delete(email.toLowerCase());
 
     // 1. Create the new Society
     const newSociety = await Society.create({
@@ -140,22 +153,44 @@ export const register = async (req: Request, res: Response) => {
 
     const alluserData = await User.findById(newUser._id).select('-password');
 
-    try {
-      await transporter.sendMail({
-        from: `SMS Portal <${process.env.SMTP_USER}>`,
-        to: newUser.email,
-        subject: 'Welcome to SMS Portal - Society Admin Registered',
-        html: newUserRegistrationTemplate(password, newUser.name),
-      });
-    } catch (err: any) {
+    transporter.sendMail({
+      from: `SMS Portal <${process.env.SMTP_USER}>`,
+      to: newUser.email,
+      subject: 'Welcome to SMS Portal - Society Admin Registered',
+      html: newUserRegistrationTemplate(password, newUser.name),
+    }).catch((err: any) => {
       console.warn("⚠️ SMTP service failed. Welcome email skipped:", err.message);
-    }
+    });
 
     console.log(`🔑 [New Admin Registration] Society: ${societyName} | Admin: ${newUser.email}`);
 
+    const payload = {
+      id: newUser._id,
+      name: newUser.name,
+      email: newUser.email,
+      role: newUser.role,
+      society: newUser.society,
+    };
+    const token = generateToken(payload);
+
+    res.cookie('token', token, {
+      httpOnly: true, // Secure HTTP-only
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    });
+
     res.status(201).json({
-      message: 'success',
-      data: alluserData,
+      message: 'Registration successful',
+      success: true,
+      authenticated: true,
+      data: {
+        id: newUser._id,
+        name: newUser.name,
+        email: newUser.email,
+        role: newUser.role,
+        profilePhoto: newUser.profilePhoto,
+      },
     });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
@@ -190,8 +225,28 @@ export const login = async (req: Request, res: Response) => {
       });
     }
 
-    if (otp) {
-      // Verify OTP code
+    if (portal === 'admin') {
+      // Admin requires BOTH password AND OTP
+      if (!password || !otp) {
+        return res.status(400).json({
+          message: 'Both Password and Email OTP are required for Admin login.',
+        });
+      }
+
+      // 1. Verify Password
+      if (!user.password) {
+        return res.status(400).json({
+          message: 'Password is not set for this account.',
+        });
+      }
+      const isPassword = await comparePassword(password, user.password);
+      if (!isPassword) {
+        return res.status(401).json({
+          message: 'Password is incorrect',
+        });
+      }
+
+      // 2. Verify OTP code
       if (!user.otp || !user.otpExpiresIn || new Date() > user.otpExpiresIn) {
         return res.status(401).json({
           message: 'Invalid OTP or OTP expired',
@@ -209,11 +264,16 @@ export const login = async (req: Request, res: Response) => {
       user.otp = undefined;
       user.otpExpiresIn = undefined;
       await user.save();
-    } else if (password) {
-      // Verify Password
+    } else {
+      // Staff/Resident requires only password
+      if (!password) {
+        return res.status(400).json({
+          message: 'Password is required to login.',
+        });
+      }
       if (!user.password) {
         return res.status(400).json({
-          message: 'Password is not set for this account. Please log in using OTP.',
+          message: 'Password is not set for this account.',
         });
       }
       const isPassword = await comparePassword(password, user.password);
@@ -222,10 +282,6 @@ export const login = async (req: Request, res: Response) => {
           message: 'Password is incorrect',
         });
       }
-    } else {
-      return res.status(400).json({
-        message: 'Either password or OTP is required to login.',
-      });
     }
 
     const payload = {
@@ -239,9 +295,9 @@ export const login = async (req: Request, res: Response) => {
     const token = generateToken(payload);
 
     res.cookie('token', token, {
-      httpOnly: false, // Make cookie visible to browser JS
+      httpOnly: true, // Make cookie secure and HTTP-only
       sameSite: 'lax',
-      secure: false,
+      secure: process.env.NODE_ENV === 'production',
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
     });
 
@@ -263,28 +319,58 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
-// Verify OTP legacy wrapper (optional, keep for API backward compatibility)
-export const verifyOtp = async (req: Request, res: Response) => {
+// Verify Firebase ID Token & Login Admin
+export const firebaseLogin = async (req: Request, res: Response) => {
   try {
-    const { email, otp } = req.body;
-    const user = await User.findOne({ email });
+    const { idToken } = req.body;
+    if (!idToken) {
+      return res.status(400).json({ message: 'Firebase ID Token is required.' });
+    }
 
-    if (!user || !user.otp || !user.otpExpiresIn || new Date() > user.otpExpiresIn) {
-      return res.status(401).json({
-        message: 'Invalid OTP or OTP expired',
+    // Verify Firebase ID Token by calling Firebase REST API lookup
+    const apiKey = "AIzaSyAqkBtnL01heXeV8Gi66V1RfgJyESfjpXM";
+    const response = await fetch(
+      `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ idToken }),
+      }
+    );
+
+    if (!response.ok) {
+      const errData = await response.json();
+      return res.status(401).json({ message: 'Invalid or expired Firebase ID Token.', error: errData });
+    }
+
+    const resData = await response.json();
+    if (!resData.users || resData.users.length === 0) {
+      return res.status(401).json({ message: 'Firebase token verification failed. User not found.' });
+    }
+
+    const firebaseEmail = resData.users[0].email;
+
+    // Check if user is registered, role is Admin, and belongs to society
+    const user = await User.findOne({ email: firebaseEmail?.toLowerCase() });
+    if (!user) {
+      return res.status(404).json({
+        message: `No registered account found for ${firebaseEmail}. Please register an account first.`,
       });
     }
 
-    const match = await bcrypt.compare(otp, user.otp);
-    if (!match) {
-      return res.status(401).json({
-        message: 'Invalid OTP or OTP expired',
+    if (user.role !== 'Admin') {
+      return res.status(403).json({
+        message: 'Google Sign-In is only available for Admin accounts.',
       });
     }
 
-    user.otp = undefined;
-    user.otpExpiresIn = undefined;
-    await user.save();
+    if (!user.society) {
+      return res.status(400).json({
+        message: 'Your account is not registered to a society. Please contact support.',
+      });
+    }
 
     const payload = {
       id: user._id,
@@ -292,18 +378,19 @@ export const verifyOtp = async (req: Request, res: Response) => {
       email: user.email,
       username: user.username,
       role: user.role,
+      society: user.society,
     };
     const token = generateToken(payload);
 
     res.cookie('token', token, {
-      httpOnly: false,
+      httpOnly: true, // Make cookie secure and HTTP-only
       sameSite: 'lax',
-      secure: false,
-      maxAge: 24 * 60 * 60 * 1000,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
     });
 
     res.status(200).json({
-      message: 'Login successful',
+      message: 'Login successful via Google Auth',
       success: true,
       authenticated: true,
       data: {
@@ -367,27 +454,25 @@ export const forgotPassword = async (req: Request, res: Response) => {
     user.password = hashPass;
     await user.save();
 
-    try {
-      await transporter.sendMail({
-        from: `SMS Portal <${process.env.SMTP_USER}>`,
-        to: user.email,
-        subject: 'SMS Portal - Password Reset',
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
-            <h2 style="color: #1e3a8a;">Password Reset Request</h2>
-            <p>Hello ${user.name},</p>
-            <p>You requested to reset your password. We have generated a temporary password for you:</p>
-            <div style="background-color: #eff6ff; padding: 16px; border-radius: 8px; text-align: center; margin: 20px 0; border: 1px solid #dbeafe;">
-              <span style="font-size: 24px; font-weight: bold; letter-spacing: 2px; color: #2563eb;">${tempPassword}</span>
-            </div>
-            <p>Please log in using this temporary password, and then immediately update your password in **My Settings**.</p>
-            <p style="color: #64748b; font-size: 12px; margin-top: 30px;">If you did not request this, please ignore this email.</p>
+    transporter.sendMail({
+      from: `SMS Portal <${process.env.SMTP_USER}>`,
+      to: user.email,
+      subject: 'SMS Portal - Password Reset',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
+          <h2 style="color: #1e3a8a;">Password Reset Request</h2>
+          <p>Hello ${user.name},</p>
+          <p>You requested to reset your password. We have generated a temporary password for you:</p>
+          <div style="background-color: #eff6ff; padding: 16px; border-radius: 8px; text-align: center; margin: 20px 0; border: 1px solid #dbeafe;">
+            <span style="font-size: 24px; font-weight: bold; letter-spacing: 2px; color: #2563eb;">${tempPassword}</span>
           </div>
-        `,
-      });
-    } catch (err: any) {
+          <p>Please log in using this temporary password, and then immediately update your password in **My Settings**.</p>
+          <p style="color: #64748b; font-size: 12px; margin-top: 30px;">If you did not request this, please ignore this email.</p>
+        </div>
+      `,
+    }).catch((err: any) => {
       console.warn("⚠️ SMTP service failed. Password reset email skipped:", err.message);
-    }
+    });
 
     console.log(`🔑 [Forgot Password Reset] User: ${user.email} | Temporary Password: ${tempPassword}`);
 

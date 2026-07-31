@@ -53,6 +53,25 @@ export const login = createAsyncThunk(
   }
 );
 
+export const firebaseLoginThunk = createAsyncThunk(
+  '/auth_firebase_login',
+  async (idToken: string, thunkApi) => {
+    try {
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_URL}/auth/firebase-login`,
+        { idToken },
+        {
+          withCredentials: true,
+        }
+      );
+      return res.data;
+    } catch (error: any) {
+      console.log(error.response?.data || error.message);
+      return thunkApi.rejectWithValue(error.response?.data || { message: error.message });
+    }
+  }
+);
+
 export const Signout = createAsyncThunk('/auth_logout', async (_, thunkApi) => {
   try {
     const res = await axios.post(
@@ -134,6 +153,32 @@ const authSlice = createSlice({
         Cookies.set('isAuthenticated', action.payload.authenticated);
       })
       .addCase(login.rejected, (state, action: PayloadAction<any>) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(firebaseLoginThunk.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(firebaseLoginThunk.fulfilled, (state, action: PayloadAction<any>) => {
+        state.loading = false;
+        state.message = action.payload.message;
+        state.isAuthenticated = action.payload.authenticated;
+        const { name, email, username, role, id, profilePhoto } = action.payload.data;
+        state.name = name;
+        state.role = role;
+        state.email = email;
+        state.username = username || '';
+        state.profilePhoto = profilePhoto;
+        Cookies.set('name', name);
+        Cookies.set('email', email);
+        Cookies.set('username', username || '');
+        Cookies.set('id', id);
+        Cookies.set('role', role);
+        Cookies.set('profilePhoto', profilePhoto || '');
+        Cookies.set('isAuthenticated', action.payload.authenticated);
+      })
+      .addCase(firebaseLoginThunk.rejected, (state, action: PayloadAction<any>) => {
         state.loading = false;
         state.error = action.payload;
       })
