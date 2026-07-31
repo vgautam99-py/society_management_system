@@ -49,6 +49,8 @@ function ManageBills() {
   const [pageNumber, setPageNumber] = useState(1);
   const [isPrintOpen, setIsPrintOpen] = useState(false);
   const [selectedBillForPrint, setSelectedBillForPrint] = useState<any>(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [viewBill, setViewBill] = useState<any>(null);
 
   const { 
     register, 
@@ -240,7 +242,7 @@ function ManageBills() {
       </div>
 
       {isAdmin && stats && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 print:hidden">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 print:hidden">
           <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-blue-900/20">
             <div className="h-12 w-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 flex-shrink-0">
               <TrendingUp size={22} />
@@ -376,100 +378,142 @@ function ManageBills() {
         {loading ? (
           <div className="p-12 flex justify-center"><Spinner size="md" /></div>
         ) : (
-          <Table>
-            <Thead>
-              <Tr hover={false}>
-                <Th>Invoice / Details</Th>
-                <Th>Flat Number</Th>
-                {isAdmin && <Th>Resident</Th>}
-                <Th>Due Date</Th>
-                <Th>Amount</Th>
-                <Th>Status</Th>
-                <Th className="text-right">Actions</Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              {bills.length > 0 ? (
-                bills.map((b: any) => (
-                  <Tr key={b._id} className="animate-scale-in">
-                    <Td className="max-w-xs">
-                      <div>
-                        <p className="font-semibold text-slate-900 text-[14px]">{b.title}</p>
-                        {b.transactionId ? (
-                          <span className="text-[10px] text-slate-400 mt-1 block">Txn: {b.transactionId}</span>
-                        ) : (
-                          <span className="text-[10px] text-slate-400 mt-1 block">Created: {new Date(b.createdAt).toLocaleDateString()}</span>
+          <>
+            {/* Desktop Table View */}
+            <div className="hidden lg:block">
+              <Table>
+                <Thead>
+                  <Tr hover={false}>
+                    <Th>Invoice / Details</Th>
+                    <Th>Flat Number</Th>
+                    {isAdmin && <Th>Resident</Th>}
+                    <Th>Due Date</Th>
+                    <Th>Amount</Th>
+                    <Th>Status</Th>
+                    <Th className="text-right">Actions</Th>
+                  </Tr>
+                </Thead>
+                <Tbody>
+                  {bills.length > 0 ? (
+                    bills.map((b: any) => (
+                      <Tr key={b._id} className="animate-scale-in">
+                        <Td className="max-w-xs">
+                          <div>
+                            <p className="font-semibold text-slate-900 text-[14px]">{b.title}</p>
+                            {b.transactionId ? (
+                              <span className="text-[10px] text-slate-400 mt-1 block">Txn: {b.transactionId}</span>
+                            ) : (
+                              <span className="text-[10px] text-slate-400 mt-1 block">Created: {new Date(b.createdAt).toLocaleDateString()}</span>
+                            )}
+                          </div>
+                        </Td>
+                        <Td>
+                          <span className="font-semibold text-slate-700 text-xs bg-slate-100 px-2 py-0.5 rounded">
+                            Flat {b.flat?.flatNumber} ({b.flat?.block})
+                          </span>
+                        </Td>
+                        {isAdmin && (
+                          <Td>
+                            <div className="flex flex-col">
+                              <span className="font-semibold text-slate-800 text-xs">{b.resident?.name}</span>
+                              <span className="text-[10px] text-slate-400">{b.resident?.email}</span>
+                            </div>
+                          </Td>
                         )}
-                      </div>
-                    </Td>
-                    <Td>
-                      <span className="font-semibold text-slate-700 text-xs bg-slate-100 px-2 py-0.5 rounded">
-                        Flat {b.flat?.flatNumber} ({b.flat?.block})
-                      </span>
-                    </Td>
-                    {isAdmin && (
-                      <Td>
-                        <div className="flex flex-col">
-                          <span className="font-semibold text-slate-800 text-xs">{b.resident?.name}</span>
-                          <span className="text-[10px] text-slate-400">{b.resident?.email}</span>
-                        </div>
-                      </Td>
-                    )}
-                    <Td className="text-slate-500 text-xs">
-                      {new Date(b.dueDate).toLocaleDateString()}
-                    </Td>
-                    <Td>
-                      <span className="font-extrabold text-slate-900">₹{b.amount.toLocaleString()}</span>
-                    </Td>
-                    <Td>
-                      <div className="flex items-center">
-                        {getStatusIcon(b.status)}
-                        <Badge variant={getStatusVariant(b.status)} className="capitalize">
-                          {b.status}
-                        </Badge>
-                      </div>
-                    </Td>
-                    <Td className="text-right">
-                      {!isAdmin && b.status !== 'paid' ? (
-                        <Button 
-                          size="sm" 
-                          variant="primary" 
-                          leftIcon={<CreditCard size={14} />}
-                          onClick={() => handlePayBillDirect(b)}
-                          className="transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 hover:shadow-md hover:brightness-105 active:brightness-95 bg-blue-600 hover:bg-blue-700"
-                        >
-                          Pay Now
-                        </Button>
-                      ) : b.status === 'paid' ? (
-                        <div className="flex items-center justify-end gap-2">
-                          <span className="text-emerald-600 text-[11px] font-semibold bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200/50">Receipt Clear</span>
-                          {!isAdmin && (
+                        <Td className="text-slate-500 text-xs">
+                          {new Date(b.dueDate).toLocaleDateString()}
+                        </Td>
+                        <Td>
+                          <span className="font-extrabold text-slate-900">₹{b.amount.toLocaleString()}</span>
+                        </Td>
+                        <Td>
+                          <div className="flex items-center">
+                            {getStatusIcon(b.status)}
+                            <Badge variant={getStatusVariant(b.status)} className="capitalize">
+                              {b.status}
+                            </Badge>
+                          </div>
+                        </Td>
+                        <Td className="text-right">
+                          {!isAdmin && b.status !== 'paid' ? (
                             <Button 
                               size="sm" 
-                              variant="secondary"
-                              onClick={() => handlePrint(b)}
-                              title="Download Receipt PDF"
-                              className="p-2 border border-slate-250 hover:border-blue-500 hover:text-blue-600 rounded-lg bg-white"
+                              variant="primary" 
+                              leftIcon={<CreditCard size={14} />}
+                              onClick={() => handlePayBillDirect(b)}
+                              className="transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 hover:shadow-md hover:brightness-105 active:brightness-95 bg-blue-600 hover:bg-blue-700"
                             >
-                              <Download size={14} />
+                              Pay Now
                             </Button>
+                          ) : b.status === 'paid' ? (
+                            <div className="flex items-center justify-end gap-2">
+                              <span className="text-emerald-600 text-[11px] font-semibold bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200/50">Receipt Clear</span>
+                              {!isAdmin && (
+                                <Button 
+                                  size="sm" 
+                                  variant="secondary"
+                                  onClick={() => handlePrint(b)}
+                                  title="Download Receipt PDF"
+                                  className="p-2 border border-slate-250 hover:border-blue-500 hover:text-blue-600 rounded-lg bg-white"
+                                >
+                                  <Download size={14} />
+                                </Button>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-slate-400 text-[11px] italic bg-slate-50 px-2.5 py-1 rounded-full border border-slate-200/50">Awaiting Payment</span>
                           )}
-                        </div>
-                      ) : (
-                        <span className="text-slate-400 text-[11px] italic bg-slate-50 px-2.5 py-1 rounded-full border border-slate-200/50">Awaiting Payment</span>
-                      )}
-                    </Td>
-                  </Tr>
+                        </Td>
+                      </Tr>
+                    ))
+                  ) : (
+                    <Tr hover={false}>
+                      <Td colSpan={isAdmin ? 7 : 6} className="text-center py-12 text-slate-500">
+                        No billing statements found.
+                      </Td>
+                    </Tr>
+                  )}
+                </Tbody>
+              </Table>
+            </div>
+
+            {/* Mobile Cards View */}
+            <div className="block lg:hidden space-y-4 p-4 bg-slate-50">
+              {bills.length > 0 ? (
+                bills.map((b: any) => (
+                  <div key={b._id} className="bg-white p-4 rounded-xl border border-slate-150 shadow-sm space-y-3">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h4 className="font-bold text-slate-900 text-sm leading-tight">{b.title}</h4>
+                        <span className="text-[10px] text-slate-400 mt-1 block">Flat {b.flat?.flatNumber} ({b.flat?.block})</span>
+                      </div>
+                      <Badge variant={getStatusVariant(b.status)} className="capitalize">
+                        {b.status}
+                      </Badge>
+                    </div>
+                    <div className="flex justify-between items-center pt-2 border-t border-slate-100">
+                      <span className="font-extrabold text-slate-950 text-sm">₹{b.amount.toLocaleString()}</span>
+                      <Button 
+                        size="sm" 
+                        variant="secondary" 
+                        onClick={() => {
+                          setViewBill(b);
+                          setIsDetailsOpen(true);
+                        }}
+                        className="text-xs px-2.5 py-1"
+                      >
+                        See details
+                      </Button>
+                    </div>
+                  </div>
                 ))
               ) : (
-                <Tr hover={false}>
-                  <Td colSpan={isAdmin ? 7 : 6} className="text-center py-12 text-slate-500">
-                    No billing statements found.
-                  </Td>
-                </Tr>
+                <div className="text-center py-8 text-slate-500 text-xs">
+                  No billing statements found.
+                </div>
               )}
-            </Tbody>
-          </Table>
+            </div>
+          </>
         )}
 
         {totalPages > 1 && (
@@ -625,6 +669,81 @@ function ManageBills() {
 
             <div className="text-center pt-2">
               <span className="text-[10px] text-slate-400 flex items-center justify-center gap-1 font-semibold"><Award size={12} className="text-blue-500" /> Digital Transaction Authenticated Successfully</span>
+            </div>
+          </div>
+        )}
+      </Dialog>
+
+      <Dialog
+        isOpen={isDetailsOpen}
+        onClose={() => setIsDetailsOpen(false)}
+        title="Billing Statement Details"
+        footer={
+          <div className="flex justify-end w-full">
+            <Button variant="secondary" onClick={() => setIsDetailsOpen(false)}>Close</Button>
+          </div>
+        }
+      >
+        {viewBill && (
+          <div className="space-y-4 py-2 text-sm text-slate-600">
+            <div className="flex justify-between border-b border-slate-100 pb-2">
+              <span className="font-semibold text-slate-500">Invoice:</span>
+              <span className="font-bold text-slate-900">{viewBill.title}</span>
+            </div>
+            <div className="flex justify-between border-b border-slate-100 pb-2">
+              <span className="font-semibold text-slate-500">Flat:</span>
+              <span className="font-bold text-slate-900">Flat {viewBill.flat?.flatNumber} ({viewBill.flat?.block})</span>
+            </div>
+            {isAdmin && (
+              <div className="flex flex-col border-b border-slate-100 pb-2">
+                <span className="font-semibold text-slate-500">Resident:</span>
+                <span className="font-bold text-slate-900">{viewBill.resident?.name} ({viewBill.resident?.email})</span>
+              </div>
+            )}
+            <div className="flex justify-between border-b border-slate-100 pb-2">
+              <span className="font-semibold text-slate-500">Due Date:</span>
+              <span className="font-bold text-slate-900">{new Date(viewBill.dueDate).toLocaleDateString()}</span>
+            </div>
+            <div className="flex justify-between border-b border-slate-100 pb-2">
+              <span className="font-semibold text-slate-500">Amount:</span>
+              <span className="font-extrabold text-slate-950">₹{viewBill.amount.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between border-b border-slate-100 pb-2">
+              <span className="font-semibold text-slate-500">Status:</span>
+              <Badge variant={getStatusVariant(viewBill.status)} className="capitalize">
+                {viewBill.status}
+              </Badge>
+            </div>
+            
+            {/* Direct Pay or Print Receipts triggers */}
+            <div className="pt-2">
+              {!isAdmin && viewBill.status !== 'paid' ? (
+                <Button 
+                  size="md" 
+                  variant="primary" 
+                  leftIcon={<CreditCard size={14} />}
+                  onClick={() => {
+                    setIsDetailsOpen(false);
+                    handlePayBillDirect(viewBill);
+                  }}
+                  className="w-full bg-blue-600 hover:bg-blue-700"
+                >
+                  Pay Now
+                </Button>
+              ) : viewBill.status === 'paid' && !isAdmin ? (
+                <Button 
+                  size="md" 
+                  variant="secondary"
+                  leftIcon={<Download size={14} />}
+                  onClick={() => {
+                    setIsDetailsOpen(false);
+                    handlePrint(viewBill);
+                  }}
+                  className="w-full text-blue-600 border border-blue-200 hover:bg-blue-50/50"
+                >
+                  Download Receipt
+                </Button>
+              ) : null}
             </div>
           </div>
         )}

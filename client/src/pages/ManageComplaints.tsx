@@ -49,6 +49,8 @@ function ManageComplaints() {
   const [searchTerm, setSearchTerm] = useState('');
   const [pageNumber, setPageNumber] = useState(1);
   const [selectedStatus, setSelectedStatus] = useState('');
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [viewComplaint, setViewComplaint] = useState<any>(null);
 
   // Fetch staff list for assignment dropdown (Admin only)
   const [staffList, setStaffList] = useState<any[]>([]);
@@ -292,95 +294,137 @@ function ManageComplaints() {
         {loading ? (
           <div className="p-12 flex justify-center"><Spinner size="md" /></div>
         ) : (
-          <Table>
-            <Thead>
-              <Tr hover={false}>
-                <Th>Complaint Details</Th>
-                {isAdmin && <Th>Filed By</Th>}
-                <Th>Assigned Staff</Th>
-                <Th>Status</Th>
-                <Th className="text-right">Actions</Th>
-              </Tr>
-            </Thead>
-            <Tbody>
+          <>
+            {/* Desktop Table View */}
+            <div className="hidden lg:block">
+              <Table>
+                <Thead>
+                  <Tr hover={false}>
+                    <Th>Complaint Details</Th>
+                    {isAdmin && <Th>Filed By</Th>}
+                    <Th>Assigned Staff</Th>
+                    <Th>Status</Th>
+                    <Th className="text-right">Actions</Th>
+                  </Tr>
+                </Thead>
+                <Tbody>
+                  {filteredComplaints.length > 0 ? (
+                    filteredComplaints.map((c: any) => (
+                      <Tr key={c._id}>
+                        <Td className="max-w-md">
+                          <div>
+                            <p className="font-semibold text-slate-900 text-[14px]">{c.title}</p>
+                            <p className="text-slate-500 text-xs mt-1 leading-relaxed">{c.description}</p>
+                          </div>
+                        </Td>
+                        {isAdmin && (
+                          <Td>
+                            <div className="flex flex-col">
+                              <span className="font-medium text-slate-800 text-xs">{c.resident?.name || 'Unknown'}</span>
+                              <span className="text-[10px] text-slate-400">{c.resident?.email}</span>
+                            </div>
+                          </Td>
+                        )}
+                        <Td>
+                          {c.assignedTo ? (
+                            <div className="flex flex-col">
+                              <span className="font-semibold text-slate-800 text-xs">{c.assignedTo.name}</span>
+                              <span className="text-[10px] text-slate-400">{c.assignedTo.email}</span>
+                            </div>
+                          ) : (
+                            <span className="text-slate-400 italic text-xs">Unassigned</span>
+                          )}
+                        </Td>
+                        <Td>
+                          <div className="flex items-center">
+                            {getStatusIcon(c.status)}
+                            <Badge variant={getStatusVariant(c.status)} className="capitalize">
+                              {c.status}
+                            </Badge>
+                          </div>
+                        </Td>
+                        <Td className="text-right">
+                          <div className="flex justify-end items-center gap-2">
+                            {isAdmin && (
+                              <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={() => handleOpenAssignDialog(c)}
+                                className="text-[10px] px-2 py-1 h-7 border-blue-200 text-blue-600 hover:bg-blue-50"
+                              >
+                                Assign Task
+                              </Button>
+                            )}
+                            {(isAdmin || isStaff) ? (
+                              <button 
+                                onClick={() => handleOpenStatusDialog(c)}
+                                className="p-1.5 text-slate-400 hover:text-blue-600 transition-colors"
+                                title="Update Status"
+                              >
+                                <Edit2 size={16} />
+                              </button>
+                            ) : null}
+                            {(isAdmin || c.status === 'pending') && (
+                              <button 
+                                onClick={() => handleDelete(c._id)}
+                                className="p-1.5 text-slate-400 hover:text-rose-600 transition-colors"
+                                title="Delete Complaint"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            )}
+                          </div>
+                        </Td>
+                      </Tr>
+                    ))
+                  ) : (
+                    <Tr hover={false}>
+                      <Td colSpan={isAdmin ? 5 : 4} className="text-center py-12 text-slate-500">
+                        No complaints found.
+                      </Td>
+                    </Tr>
+                  )}
+                </Tbody>
+              </Table>
+            </div>
+
+            {/* Mobile Cards View */}
+            <div className="block lg:hidden space-y-4 p-4 bg-slate-50">
               {filteredComplaints.length > 0 ? (
                 filteredComplaints.map((c: any) => (
-                  <Tr key={c._id}>
-                    <Td className="max-w-md">
+                  <div key={c._id} className="bg-white p-4 rounded-xl border border-slate-150 shadow-sm space-y-3">
+                    <div className="flex justify-between items-start">
                       <div>
-                        <p className="font-semibold text-slate-900 text-[14px]">{c.title}</p>
-                        <p className="text-slate-500 text-xs mt-1 leading-relaxed">{c.description}</p>
+                        <h4 className="font-bold text-slate-900 text-sm leading-tight">{c.title}</h4>
+                        <span className="text-[10px] text-slate-400 mt-1 block">Created: {new Date(c.createdAt).toLocaleDateString()}</span>
                       </div>
-                    </Td>
-                    {isAdmin && (
-                      <Td>
-                        <div className="flex flex-col">
-                          <span className="font-medium text-slate-800 text-xs">{c.resident?.name || 'Unknown'}</span>
-                          <span className="text-[10px] text-slate-400">{c.resident?.email}</span>
-                        </div>
-                      </Td>
-                    )}
-                    <Td>
-                      {c.assignedTo ? (
-                        <div className="flex flex-col">
-                          <span className="font-semibold text-slate-800 text-xs">{c.assignedTo.name}</span>
-                          <span className="text-[10px] text-slate-400">{c.assignedTo.email}</span>
-                        </div>
-                      ) : (
-                        <span className="text-slate-400 italic text-xs">Unassigned</span>
-                      )}
-                    </Td>
-                    <Td>
-                      <div className="flex items-center">
-                        {getStatusIcon(c.status)}
-                        <Badge variant={getStatusVariant(c.status)} className="capitalize">
-                          {c.status}
-                        </Badge>
-                      </div>
-                    </Td>
-                    <Td className="text-right">
-                      <div className="flex justify-end items-center gap-2">
-                        {isAdmin && (
-                          <Button
-                            variant="secondary"
-                            size="sm"
-                            onClick={() => handleOpenAssignDialog(c)}
-                            className="text-[10px] px-2 py-1 h-7 border-blue-200 text-blue-600 hover:bg-blue-50"
-                          >
-                            Assign Task
-                          </Button>
-                        )}
-                        {(isAdmin || isStaff) ? (
-                          <button 
-                            onClick={() => handleOpenStatusDialog(c)}
-                            className="p-1.5 text-slate-400 hover:text-blue-600 transition-colors"
-                            title="Update Status"
-                          >
-                            <Edit2 size={16} />
-                          </button>
-                        ) : null}
-                        {(isAdmin || c.status === 'pending') && (
-                          <button 
-                            onClick={() => handleDelete(c._id)}
-                            className="p-1.5 text-slate-400 hover:text-rose-600 transition-colors"
-                            title="Delete Complaint"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        )}
-                      </div>
-                    </Td>
-                  </Tr>
+                      <Badge variant={getStatusVariant(c.status)} className="capitalize">
+                        {c.status}
+                      </Badge>
+                    </div>
+                    <div className="flex justify-between items-center pt-2 border-t border-slate-100">
+                      <span className="text-xs text-slate-500 font-medium">Assigned: {c.assignedTo?.name || 'Unassigned'}</span>
+                      <Button 
+                        size="sm" 
+                        variant="secondary" 
+                        onClick={() => {
+                          setViewComplaint(c);
+                          setIsDetailsOpen(true);
+                        }}
+                        className="text-xs px-2.5 py-1"
+                      >
+                        See details
+                      </Button>
+                    </div>
+                  </div>
                 ))
               ) : (
-                <Tr hover={false}>
-                  <Td colSpan={isAdmin ? 4 : 3} className="text-center py-12 text-slate-500">
-                    No complaints found.
-                  </Td>
-                </Tr>
+                <div className="text-center py-8 text-slate-500 text-xs">
+                  No complaints found.
+                </div>
               )}
-            </Tbody>
-          </Table>
+            </div>
+          </>
         )}
         
         {/* Dynamic Pagination Footer */}
@@ -577,6 +621,92 @@ function ManageComplaints() {
             </div>
           </div>
         </div>
+      </Dialog>
+
+      <Dialog
+        isOpen={isDetailsOpen}
+        onClose={() => setIsDetailsOpen(false)}
+        title="Complaint Details"
+        footer={
+          <div className="flex justify-end w-full">
+            <Button variant="secondary" onClick={() => setIsDetailsOpen(false)}>Close</Button>
+          </div>
+        }
+      >
+        {viewComplaint && (
+          <div className="space-y-4 py-2 text-sm text-slate-600">
+            <div className="flex flex-col border-b border-slate-100 pb-2">
+              <span className="font-semibold text-slate-500">Title:</span>
+              <span className="font-bold text-slate-900 mt-0.5">{viewComplaint.title}</span>
+            </div>
+            <div className="flex flex-col border-b border-slate-100 pb-2">
+              <span className="font-semibold text-slate-500">Description:</span>
+              <p className="text-slate-700 text-xs mt-1 leading-relaxed bg-slate-50 p-2.5 rounded-lg border border-slate-100">{viewComplaint.description}</p>
+            </div>
+            {isAdmin && (
+              <div className="flex flex-col border-b border-slate-100 pb-2">
+                <span className="font-semibold text-slate-500">Filed By:</span>
+                <span className="font-bold text-slate-900">{viewComplaint.resident?.name || 'Unknown'} ({viewComplaint.resident?.email})</span>
+              </div>
+            )}
+            <div className="flex flex-col border-b border-slate-100 pb-2">
+              <span className="font-semibold text-slate-500">Assigned Staff:</span>
+              <span className="font-bold text-slate-900">{viewComplaint.assignedTo?.name || 'Unassigned'} {viewComplaint.assignedTo?.email ? `(${viewComplaint.assignedTo.email})` : ''}</span>
+            </div>
+            <div className="flex justify-between border-b border-slate-100 pb-2">
+              <span className="font-semibold text-slate-500">Date Filed:</span>
+              <span className="font-bold text-slate-900">{new Date(viewComplaint.createdAt).toLocaleDateString()}</span>
+            </div>
+            <div className="flex justify-between border-b border-slate-100 pb-2">
+              <span className="font-semibold text-slate-500">Status:</span>
+              <Badge variant={getStatusVariant(viewComplaint.status)} className="capitalize">
+                {viewComplaint.status}
+              </Badge>
+            </div>
+            
+            {/* Quick Actions in Modal */}
+            <div className="flex gap-2 pt-2">
+              {isAdmin && (
+                <Button 
+                  size="sm" 
+                  variant="primary" 
+                  onClick={() => {
+                    setIsDetailsOpen(false);
+                    handleOpenAssignDialog(viewComplaint);
+                  }}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700"
+                >
+                  Assign Task
+                </Button>
+              )}
+              {(isAdmin || isStaff) && (
+                <Button 
+                  size="sm" 
+                  variant="secondary" 
+                  onClick={() => {
+                    setIsDetailsOpen(false);
+                    handleOpenStatusDialog(viewComplaint);
+                  }}
+                  className="flex-1 text-slate-700 border border-slate-200"
+                >
+                  Update Status
+                </Button>
+              )}
+              {(isAdmin || viewComplaint.status === 'pending') && (
+                <Button 
+                  size="sm" 
+                  onClick={() => {
+                    setIsDetailsOpen(false);
+                    handleDelete(viewComplaint._id);
+                  }}
+                  className="flex-1 bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100/50"
+                >
+                  Delete
+                </Button>
+              )}
+            </div>
+          </div>
+        )}
       </Dialog>
     </div>
   );

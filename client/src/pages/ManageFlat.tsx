@@ -129,38 +129,66 @@ function ManageFlat() {
         {loading ? (
           <div className="p-12 flex justify-center"><Spinner size="md" /></div>
         ) : (
-          <Table>
-             <Thead>
-              <Tr hover={false}>
-                <Th>Flat Number</Th>
-                <Th>Block</Th>
-                <Th>Floor</Th>
-                <Th>Status</Th>
-              </Tr>
-            </Thead>
-            <Tbody>
+          <>
+            {/* Desktop Table View */}
+            <div className="hidden lg:block">
+              <Table>
+                 <Thead>
+                  <Tr hover={false}>
+                    <Th>Flat Number</Th>
+                    <Th>Block</Th>
+                    <Th>Floor</Th>
+                    <Th>Status</Th>
+                  </Tr>
+                </Thead>
+                <Tbody>
+                  {filteredFlats.length > 0 ? (
+                    filteredFlats.map((flat: any) => (
+                      <Tr key={flat._id}>
+                        <Td className="font-medium text-slate-900">{flat.flatNumber}</Td>
+                        <Td className="uppercase">{flat.block}</Td>
+                        <Td>{flat.floor}</Td>
+                        <Td>
+                          <Badge variant={flat.isOccupied ? 'success' : 'slate'}>
+                            {flat.isOccupied ? 'Occupied' : 'Vacant'}
+                          </Badge>
+                        </Td>
+                      </Tr>
+                    ))
+                  ) : (
+                    <Tr hover={false}>
+                      <Td colSpan={4} className="text-center py-12 text-slate-500">
+                        No flats found matching your search.
+                      </Td>
+                    </Tr>
+                  )}
+                </Tbody>
+              </Table>
+            </div>
+
+            {/* Mobile Cards View */}
+            <div className="block lg:hidden space-y-3 p-4 bg-slate-50">
               {filteredFlats.length > 0 ? (
                 filteredFlats.map((flat: any) => (
-                  <Tr key={flat._id}>
-                    <Td className="font-medium text-slate-900">{flat.flatNumber}</Td>
-                    <Td className="uppercase">{flat.block}</Td>
-                    <Td>{flat.floor}</Td>
-                    <Td>
+                  <div key={flat._id} className="bg-white p-4 rounded-xl border border-slate-150 shadow-sm space-y-2">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <h4 className="font-bold text-slate-900 text-sm">Flat {flat.flatNumber}</h4>
+                        <span className="text-[10px] text-slate-450 block mt-0.5">Block {flat.block.toUpperCase()} • Floor {flat.floor}</span>
+                      </div>
                       <Badge variant={flat.isOccupied ? 'success' : 'slate'}>
                         {flat.isOccupied ? 'Occupied' : 'Vacant'}
                       </Badge>
-                    </Td>
-                  </Tr>
+                    </div>
+                  </div>
                 ))
               ) : (
-                <Tr hover={false}>
-                  <Td colSpan={4} className="text-center py-12 text-slate-500">
-                    No flats found matching your search.
-                  </Td>
-                </Tr>
+                <div className="text-center py-8 text-slate-500 text-xs">
+                  No flats found matching your search.
+                </div>
               )}
-            </Tbody>
-          </Table>
+            </div>
+          </>
         )}
       </div>
 

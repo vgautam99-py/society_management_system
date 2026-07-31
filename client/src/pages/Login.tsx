@@ -408,26 +408,7 @@ const Login = () => {
             </p>
           </div>
 
-          {/* Messages */}
-          {localError && (
-            <div className="bg-red-50 border border-red-200 text-red-700 text-xs p-4 rounded-xl flex items-center gap-3 mb-6">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-500 flex-shrink-0">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" y1="8" x2="12" y2="12"></line>
-                <line x1="12" y1="16" x2="12.01" y2="16"></line>
-              </svg>
-              <span className="font-medium">{localError}</span>
-            </div>
-          )}
 
-          {localMessage && (
-            <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs p-4 rounded-xl flex items-center gap-3 mb-6">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-500 flex-shrink-0">
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
-              <span className="font-medium">{localMessage}</span>
-            </div>
-          )}
 
           {/* Portal Tabs Switcher (Admin vs Staff/Resident) */}
           {!isRegistering && !isForgotPassword && (
@@ -637,31 +618,34 @@ const Login = () => {
                     <span className="absolute bg-white px-3 text-xs text-slate-400 font-medium uppercase">Or</span>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={handleFirebaseGoogleLogin}
-                    className="flex items-center justify-center gap-3 w-full border border-slate-250 hover:bg-slate-50 transition-colors text-slate-700 font-semibold text-sm py-2.5 rounded-xl cursor-pointer"
-                  >
-                    <svg className="w-5 h-5" viewBox="0 0 24 24">
-                      <path
-                        fill="#EA4335"
-                        d="M12 5.04c1.66 0 3.2.57 4.38 1.69l3.27-3.27C17.67 1.58 14.97 1 12 1 7.24 1 3.2 3.73 1.24 7.72l3.82 2.96C6.01 7.22 8.79 5.04 12 5.04z"
-                      />
-                      <path
-                        fill="#4285F4"
-                        d="M23.49 12.27c0-.81-.07-1.59-.2-2.34H12v4.51h6.46c-.29 1.48-1.14 2.73-2.42 3.58l3.76 2.91c2.2-2.03 3.69-5.02 3.69-8.66z"
-                      />
-                      <path
-                        fill="#FBBC05"
-                        d="M5.06 10.68c-.25-.72-.39-1.49-.39-2.28s.14-1.56.39-2.28L1.24 3.16C.45 4.76 0 6.55 0 8.4s.45 3.64 1.24 5.24l3.82-2.96z"
-                      />
-                      <path
-                        fill="#34A853"
-                        d="M12 23c3.24 0 5.97-1.07 7.96-2.91l-3.76-2.91c-1.1.74-2.5 1.18-4.2 1.18-3.21 0-5.99-2.18-6.94-5.64L1.24 15.68C3.2 19.67 7.24 23 12 23z"
-                      />
-                    </svg>
-                    Sign In with Gmail (Firebase)
-                  </button>
+                  <div className="flex flex-col items-center justify-center gap-1.5 my-3">
+                    <button
+                      type="button"
+                      onClick={handleFirebaseGoogleLogin}
+                      className="w-12 h-12 rounded-full border border-slate-200 hover:border-blue-500 hover:bg-blue-50/30 flex items-center justify-center transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md bg-white"
+                      title="Sign In with Google"
+                    >
+                      <svg className="w-6 h-6" viewBox="0 0 24 24">
+                        <path
+                          fill="#EA4335"
+                          d="M12 5.04c1.66 0 3.2.57 4.38 1.69l3.27-3.27C17.67 1.58 14.97 1 12 1 7.24 1 3.2 3.73 1.24 7.72l3.82 2.96C6.01 7.22 8.79 5.04 12 5.04z"
+                        />
+                        <path
+                          fill="#4285F4"
+                          d="M23.49 12.27c0-.81-.07-1.59-.2-2.34H12v4.51h6.46c-.29 1.48-1.14 2.73-2.42 3.58l3.76 2.91c2.2-2.03 3.69-5.02 3.69-8.66z"
+                        />
+                        <path
+                          fill="#FBBC05"
+                          d="M5.06 10.68c-.25-.72-.39-1.49-.39-2.28s.14-1.56.39-2.28L1.24 3.16C.45 4.76 0 6.55 0 8.4s.45 3.64 1.24 5.24l3.82-2.96z"
+                        />
+                        <path
+                          fill="#34A853"
+                          d="M12 23c3.24 0 5.97-1.07 7.96-2.91l-3.76-2.91c-1.1.74-2.5 1.18-4.2 1.18-3.21 0-5.99-2.18-6.94-5.64L1.24 15.68C3.2 19.67 7.24 23 12 23z"
+                        />
+                      </svg>
+                    </button>
+                    <span className="text-xs font-semibold text-slate-500">Google</span>
+                  </div>
                 </>
               )}
 
