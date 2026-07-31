@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import User from '../model/user.model.js';
 
 export interface AuthenticatedRequest extends Request {
   user?: {
@@ -14,7 +15,7 @@ export interface AuthenticatedRequest extends Request {
   file?: any;
 }
 
-const verifyToken = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+const verifyToken = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
     const token = req.cookies.token;
     if (!token) {
@@ -34,6 +35,15 @@ const verifyToken = (req: AuthenticatedRequest, res: Response, next: NextFunctio
       return res.status(401).json({
         success: false,
         message: 'Authentication failed: Invalid token.',
+      });
+    }
+
+    // Verify that the token matches the user's active session token in the database
+    const dbUser = await User.findById(decoded.id);
+    if (!dbUser || dbUser.token !== token) {
+      return res.status(401).json({
+        success: false,
+        message: 'Authentication failed: Token has been revoked or session expired.',
       });
     }
 

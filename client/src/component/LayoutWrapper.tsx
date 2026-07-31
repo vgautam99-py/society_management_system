@@ -37,7 +37,21 @@ interface LayoutWrapperProps {
 }
 
 const LayoutWrapper = ({ children, navItems }: LayoutWrapperProps) => {
-  const [isSidebarOpen, setSidebarOpen] = useState(true);
+  const [isSidebarOpen, setSidebarOpen] = useState(false);
+
+  // Handle responsive sidebar behavior based on screen size
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setSidebarOpen(true);
+      } else {
+        setSidebarOpen(false);
+      }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   const location = useLocation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -206,12 +220,21 @@ const LayoutWrapper = ({ children, navItems }: LayoutWrapperProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] flex font-sans">
+    <div className="min-h-screen bg-[#f8fafc] flex font-sans relative overflow-x-hidden w-full">
+      {/* Mobile Sidebar Backdrop */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-slate-900/50 z-25 md:hidden transition-opacity duration-300"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
       <aside
-        className={`bg-[#1e3a8a] text-white transition-all duration-300 ease-in-out flex-shrink-0 z-30 shadow-xl print:hidden ${
-          isSidebarOpen ? 'w-64' : 'w-20'
-        } flex flex-col h-screen sticky top-0`}
+        className={`bg-[#1e3a8a] text-white transition-all duration-300 ease-in-out flex-shrink-0 z-30 shadow-xl print:hidden flex flex-col h-screen
+          fixed md:sticky top-0 left-0
+          ${isSidebarOpen ? 'w-64 translate-x-0' : 'w-64 -translate-x-full md:translate-x-0 md:w-20'}
+        `}
       >
         {/* Logo Section */}
         <div className="p-6 flex items-center gap-3 border-b border-white/10">
@@ -427,7 +450,7 @@ const LayoutWrapper = ({ children, navItems }: LayoutWrapperProps) => {
 
         {/* Page Content */}
         <main className="flex-1 overflow-y-auto">
-          <div className="p-6 max-w-7xl mx-auto w-full">{children}</div>
+          <div className="p-3 sm:p-6 max-w-7xl mx-auto w-full">{children}</div>
         </main>
       </div>
     </div>

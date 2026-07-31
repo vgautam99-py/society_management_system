@@ -172,6 +172,8 @@ export const register = async (req: Request, res: Response) => {
       society: newUser.society,
     };
     const token = generateToken(payload);
+    newUser.token = token;
+    await newUser.save();
 
     res.cookie('token', token, {
       httpOnly: true, // Secure HTTP-only
@@ -293,6 +295,8 @@ export const login = async (req: Request, res: Response) => {
       society: user.society,
     };
     const token = generateToken(payload);
+    user.token = token;
+    await user.save();
 
     res.cookie('token', token, {
       httpOnly: true, // Make cookie secure and HTTP-only
@@ -328,7 +332,7 @@ export const firebaseLogin = async (req: Request, res: Response) => {
     }
 
     // Verify Firebase ID Token by calling Firebase REST API lookup
-    const apiKey = "AIzaSyAqkBtnL01heXeV8Gi66V1RfgJyESfjpXM";
+    const apiKey = process.env.FIREBASE_API_KEY || "AIzaSyAqkBtnL01heXeV8Gi66V1RfgJyESfjpXM";
     const response = await fetch(
       `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${apiKey}`,
       {
@@ -381,6 +385,9 @@ export const firebaseLogin = async (req: Request, res: Response) => {
       society: user.society,
     };
     const token = generateToken(payload);
+    user.token = token;
+    user.firebaseToken = idToken;
+    await user.save();
 
     res.cookie('token', token, {
       httpOnly: true, // Make cookie secure and HTTP-only
@@ -416,10 +423,17 @@ export const verify = async (req: AuthenticatedRequest, res: Response) => {
 };
 
 // Logout
-export const logout = async (req: Request, res: Response) => {
+export const logout = async (req: AuthenticatedRequest, res: Response) => {
   try {
+    if (req.user?.id) {
+      await User.findByIdAndUpdate(req.user.id, { token: undefined, firebaseToken: undefined });
+    }
+
     res.cookie('token', null, {
       maxAge: 0,
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
     });
 
     res.status(200).json({

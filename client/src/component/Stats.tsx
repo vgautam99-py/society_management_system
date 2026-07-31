@@ -128,18 +128,18 @@ function Stats() {
 
 // Helper Component for Stats Cards
 const StatsCard = ({ title, value, icon: Icon, color, trend }: any) => (
-  <div className="ds-panel p-6 flex flex-col justify-between group hover:border-primary-500/30 transition-all cursor-pointer">
-    <div className="flex justify-between items-start mb-4">
+  <div className="ds-panel p-6 flex flex-col justify-between group hover:border-primary-500/30 transition-all cursor-pointer max-[550px]:items-center max-[550px]:text-center">
+    <div className="flex justify-between items-start mb-4 max-[550px]:flex-col max-[550px]:items-center max-[550px]:text-center max-[550px]:gap-4 w-full">
       <div className={`p-3 rounded-xl ${color} text-white shadow-lg shadow-inherit/20`}>
         <Icon size={22} />
       </div>
-      <div className="text-right">
+      <div className="text-right max-[550px]:text-center">
         <p className="text-slate-500 text-xs font-medium uppercase tracking-wider">{title}</p>
         <h3 className="text-2xl font-bold text-slate-900 mt-1">{value}</h3>
       </div>
     </div>
-    <div className="pt-4 border-t border-slate-50">
-      <div className="flex items-center gap-1.5">
+    <div className="pt-4 border-t border-slate-50 w-full">
+      <div className="flex items-center gap-1.5 max-[550px]:justify-center">
         <TrendingUp size={14} className="text-emerald-500" />
         <span className="text-[11px] font-medium text-slate-600">{trend}</span>
       </div>

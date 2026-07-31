@@ -18,17 +18,17 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-slate-50 font-sans selection:bg-primary-500 selection:text-white">
       {/* Navigation */}
-      <nav className="flex items-center justify-between px-8 py-6 max-w-7xl mx-auto">
-        <div className="flex items-center gap-2">
+      <nav className="flex flex-col min-[550px]:flex-row items-center justify-between gap-4 px-8 py-6 max-w-7xl mx-auto">
+        <div className="flex items-center gap-2 justify-center">
           <div className="bg-primary-600 p-2 rounded-xl shadow-lg shadow-primary-600/20">
             <Building2 className="w-6 h-6 text-white" />
           </div>
           <span className="text-xl font-bold text-slate-900 tracking-tight">Society Management</span>
         </div>
-        <div className="flex items-center gap-6">
-          <a href="#features" className="text-sm font-medium text-slate-600 hover:text-primary-600 transition-colors">Features</a>
-          <a href="#how-it-works" className="text-sm font-medium text-slate-600 hover:text-primary-600 transition-colors">How It Works</a>
-          <Link to="/login" className="bg-primary-600 hover:bg-primary-700 text-white px-5 py-2.5 rounded-full text-sm font-semibold transition-all shadow-md shadow-primary-600/10 hover:shadow-lg hover:shadow-primary-600/20 flex items-center gap-2">
+        <div className="flex items-center gap-6 justify-center">
+          <a href="#features" className="hidden min-[550px]:inline-block text-sm font-medium text-slate-600 hover:text-primary-600 transition-colors">Features</a>
+          <a href="#how-it-works" className="hidden min-[550px]:inline-block text-sm font-medium text-slate-600 hover:text-primary-600 transition-colors">How It Works</a>
+          <Link to="/login" className="hidden min-[550px]:flex bg-primary-600 hover:bg-primary-700 text-white px-5 py-2.5 rounded-full text-sm font-semibold transition-all shadow-md shadow-primary-600/10 hover:shadow-lg hover:shadow-primary-600/20 items-center gap-2">
             Login <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
@@ -40,18 +40,18 @@ const Home = () => {
           <Sparkles className="w-4 h-4" />
           The ultimate tool for modern societies
         </div>
-        <h1 className="text-6xl md:text-7xl font-bold text-slate-900 tracking-tight mb-8 leading-tight">
+        <h1 className="text-4xl md:text-7xl font-bold text-slate-900 tracking-tight mb-8 leading-tight">
           Manage your society <br className="hidden md:block" />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-teal-500">
             intelligently.
           </span>
         </h1>
-        <p className="text-lg md:text-xl text-slate-500 max-w-2xl mx-auto mb-10 leading-relaxed">
+        <p className="text-base md:text-xl text-slate-500 max-w-2xl mx-auto mb-10 leading-relaxed">
           A comprehensive suite of tools designed to streamline residential management, enhance security, and foster community engagement.
         </p>
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Link to="/login" className="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white px-8 py-4 rounded-full text-base font-semibold transition-all shadow-xl shadow-slate-900/20 flex items-center justify-center gap-2">
-            Get Started Today <ArrowRight className="w-5 h-5" />
+        <div className="flex justify-center items-center gap-4">
+          <Link to="/login" className="w-auto bg-slate-900 hover:bg-slate-800 text-white px-6 py-3 rounded-full text-sm font-semibold transition-all shadow-md shadow-slate-900/10 hover:shadow-lg flex items-center justify-center gap-2">
+            Get Started Now <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       </main>
@@ -66,8 +66,8 @@ const Home = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             
-            <div className="p-8 rounded-3xl bg-slate-50 border border-slate-100 hover:border-primary-200 hover:shadow-xl hover:shadow-primary-600/5 transition-all group">
-              <div className="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+            <div className="p-8 rounded-3xl bg-white border border-slate-200/60 shadow-sm hover:border-primary-400 hover:shadow-lg hover:shadow-primary-600/5 transition-all duration-300 group text-left max-[550px]:pl-10 max-[550px]:pr-6">
+              <div className="w-14 h-14 bg-slate-50 border border-slate-100 rounded-2xl shadow-sm flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <Users className="w-7 h-7 text-primary-600" />
               </div>
               <h3 className="text-xl font-bold text-slate-900 mb-3">Resident Management</h3>
@@ -75,8 +75,8 @@ const Home = () => {
             </div>
 
           
-            <div className="p-8 rounded-3xl bg-slate-50 border border-slate-100 hover:border-primary-200 hover:shadow-xl hover:shadow-primary-600/5 transition-all group">
-              <div className="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+            <div className="p-8 rounded-3xl bg-white border border-slate-200/60 shadow-sm hover:border-primary-400 hover:shadow-lg hover:shadow-primary-600/5 transition-all duration-300 group text-left max-[550px]:pl-10 max-[550px]:pr-6">
+              <div className="w-14 h-14 bg-slate-50 border border-slate-100 rounded-2xl shadow-sm flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <ShieldCheck className="w-7 h-7 text-primary-600" />
               </div>
               <h3 className="text-xl font-bold text-slate-900 mb-3">Visitor & Security</h3>
@@ -84,8 +84,8 @@ const Home = () => {
             </div>
 
         
-            <div className="p-8 rounded-3xl bg-slate-50 border border-slate-100 hover:border-primary-200 hover:shadow-xl hover:shadow-primary-600/5 transition-all group">
-              <div className="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+            <div className="p-8 rounded-3xl bg-white border border-slate-200/60 shadow-sm hover:border-primary-400 hover:shadow-lg hover:shadow-primary-600/5 transition-all duration-300 group text-left max-[550px]:pl-10 max-[550px]:pr-6">
+              <div className="w-14 h-14 bg-slate-50 border border-slate-100 rounded-2xl shadow-sm flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <CreditCard className="w-7 h-7 text-primary-600" />
               </div>
               <h3 className="text-xl font-bold text-slate-900 mb-3">Financial Hub</h3>
@@ -93,8 +93,8 @@ const Home = () => {
             </div>
 
           
-            <div className="p-8 rounded-3xl bg-slate-50 border border-slate-100 hover:border-primary-200 hover:shadow-xl hover:shadow-primary-600/5 transition-all group">
-              <div className="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+            <div className="p-8 rounded-3xl bg-white border border-slate-200/60 shadow-sm hover:border-primary-400 hover:shadow-lg hover:shadow-primary-600/5 transition-all duration-300 group text-left max-[550px]:pl-10 max-[550px]:pr-6">
+              <div className="w-14 h-14 bg-slate-50 border border-slate-100 rounded-2xl shadow-sm flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <MessageSquare className="w-7 h-7 text-primary-600" />
               </div>
               <h3 className="text-xl font-bold text-slate-900 mb-3">Complaint Resolution</h3>
@@ -102,8 +102,8 @@ const Home = () => {
             </div>
 
           
-            <div className="p-8 rounded-3xl bg-slate-50 border border-slate-100 hover:border-primary-200 hover:shadow-xl hover:shadow-primary-600/5 transition-all group">
-              <div className="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+            <div className="p-8 rounded-3xl bg-white border border-slate-200/60 shadow-sm hover:border-primary-400 hover:shadow-lg hover:shadow-primary-600/5 transition-all duration-300 group text-left max-[550px]:pl-10 max-[550px]:pr-6">
+              <div className="w-14 h-14 bg-slate-50 border border-slate-100 rounded-2xl shadow-sm flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <BellRing className="w-7 h-7 text-primary-600" />
               </div>
               <h3 className="text-xl font-bold text-slate-900 mb-3">Digital Noticeboard</h3>
@@ -111,10 +111,10 @@ const Home = () => {
             </div>
 
             {/* Tool 6 */}
-            <div className="p-8 rounded-3xl bg-gradient-to-br from-primary-600 to-teal-700 text-white shadow-xl shadow-primary-600/20 transform hover:-translate-y-1 transition-all">
+            <div className="p-8 rounded-3xl bg-gradient-to-br from-primary-600 to-teal-700 text-white shadow-xl shadow-primary-600/20 transform hover:-translate-y-1 transition-all text-left max-[550px]:text-center max-[550px]:flex max-[550px]:flex-col max-[550px]:items-center">
               <h3 className="text-2xl font-bold mb-4 mt-2">Ready to transform your society?</h3>
               <p className="text-primary-100 mb-8">Join hundreds of modern communities optimizing their daily operations.</p>
-              <Link to="/login" className="inline-flex items-center gap-2 bg-white text-primary-700 px-6 py-3 rounded-xl font-semibold hover:bg-primary-50 transition-colors">
+              <Link to="/login" className="inline-flex items-center gap-2 bg-white text-primary-700 px-6 py-3 rounded-xl font-semibold hover:bg-primary-50 transition-colors justify-center">
                 Get a Demo <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
@@ -132,12 +132,12 @@ const Home = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Plan 1: Free Trial */}
-            <div className="bg-slate-50 border border-slate-100 p-8 rounded-3xl flex flex-col justify-between hover:shadow-xl hover:border-blue-200 transition-all group">
+            <div className="bg-white border border-slate-200/65 p-8 rounded-3xl flex flex-col justify-between hover:shadow-xl hover:border-primary-400 transition-all duration-300 group shadow-sm text-left max-[550px]:pl-10 max-[550px]:pr-6">
               <div>
                 <h3 className="text-xl font-bold text-slate-900 mb-2">Free Trial</h3>
                 <p className="text-xs text-slate-400 mb-4">1 Month Free Access</p>
                 <div className="text-3xl font-bold text-slate-900 mb-6">₹0 <span className="text-xs text-slate-500 font-normal">/ month</span></div>
-                <ul className="space-y-3 text-xs text-slate-500 font-semibold">
+                <ul className="space-y-3 text-xs text-slate-500 font-semibold pl-1">
                   <li className="flex items-center gap-2">✓ Full Feature Access</li>
                   <li className="flex items-center gap-2">✓ Up to 50 Flats</li>
                   <li className="flex items-center gap-2">✓ Standard Support</li>
@@ -149,12 +149,12 @@ const Home = () => {
             </div>
 
             {/* Plan 2: 3-Monthly */}
-            <div className="bg-slate-50 border border-slate-100 p-8 rounded-3xl flex flex-col justify-between hover:shadow-xl hover:border-blue-200 transition-all group">
+            <div className="bg-white border border-slate-200/65 p-8 rounded-3xl flex flex-col justify-between hover:shadow-xl hover:border-primary-400 transition-all duration-300 group shadow-sm text-left max-[550px]:pl-10 max-[550px]:pr-6">
               <div>
                 <h3 className="text-xl font-bold text-slate-900 mb-2">3-Monthly</h3>
                 <p className="text-xs text-slate-400 mb-4">Billed Quarterly (₹3,600)</p>
                 <div className="text-3xl font-bold text-slate-900 mb-6">₹1,200 <span className="text-xs text-slate-500 font-normal">/ month</span></div>
-                <ul className="space-y-3 text-xs text-slate-500 font-semibold">
+                <ul className="space-y-3 text-xs text-slate-500 font-semibold pl-1">
                   <li className="flex items-center gap-2">✓ Full Feature Access</li>
                   <li className="flex items-center gap-2">✓ Up to 150 Flats</li>
                   <li className="flex items-center gap-2">✓ Priority Email Support</li>
@@ -166,12 +166,12 @@ const Home = () => {
             </div>
 
             {/* Plan 3: 6-Monthly */}
-            <div className="bg-slate-50 border border-slate-100 p-8 rounded-3xl flex flex-col justify-between hover:shadow-xl hover:border-blue-200 transition-all group">
+            <div className="bg-white border border-slate-200/65 p-8 rounded-3xl flex flex-col justify-between hover:shadow-xl hover:border-primary-400 transition-all duration-300 group shadow-sm text-left max-[550px]:pl-10 max-[550px]:pr-6">
               <div>
                 <h3 className="text-xl font-bold text-slate-900 mb-2">6-Monthly</h3>
                 <p className="text-xs text-slate-400 mb-4">Billed Semi-Annually (₹5,760)</p>
                 <div className="text-3xl font-bold text-slate-900 mb-6">₹960 <span className="text-xs text-slate-500 font-normal">/ month</span></div>
-                <ul className="space-y-3 text-xs text-slate-500 font-semibold">
+                <ul className="space-y-3 text-xs text-slate-500 font-semibold pl-1">
                   <li className="flex items-center gap-2">✓ Full Feature Access</li>
                   <li className="flex items-center gap-2">✓ Up to 300 Flats</li>
                   <li className="flex items-center gap-2">✓ 24/7 Priority Support</li>
@@ -183,13 +183,13 @@ const Home = () => {
             </div>
 
             {/* Plan 4: Yearly */}
-            <div className="bg-blue-900 text-white border border-blue-800 p-8 rounded-3xl flex flex-col justify-between hover:shadow-2xl transition-all group relative overflow-hidden">
+            <div className="bg-blue-900 text-white border border-blue-800 p-8 rounded-3xl flex flex-col justify-between hover:shadow-2xl transition-all duration-300 group relative overflow-hidden text-left max-[550px]:pl-10 max-[550px]:pr-6">
               <div className="absolute top-0 right-0 bg-teal-500 text-slate-900 text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase tracking-wider">Best Value</div>
               <div>
                 <h3 className="text-xl font-bold text-white mb-2">Yearly Plan</h3>
                 <p className="text-xs text-blue-200 mb-4">Billed Annually (₹9,600)</p>
                 <div className="text-3xl font-bold text-white mb-6">₹800 <span className="text-xs text-blue-300 font-normal">/ month</span></div>
-                <ul className="space-y-3 text-xs text-blue-100 font-semibold">
+                <ul className="space-y-3 text-xs text-blue-100 font-semibold pl-1">
                   <li className="flex items-center gap-2">✓ Full Feature Access</li>
                   <li className="flex items-center gap-2">✓ Unlimited Flats</li>
                   <li className="flex items-center gap-2">✓ Dedicated Account Manager</li>
@@ -206,9 +206,9 @@ const Home = () => {
       {/* How It Works Section */}
       <section id="how-it-works" className="py-24 bg-slate-900 text-white">
         <div className="max-w-7xl mx-auto px-8">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
-            <div className="max-w-2xl">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800 border border-slate-700 text-primary-400 text-sm font-medium mb-6">
+          <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6 max-[550px]:items-center max-[550px]:text-center">
+            <div className="max-w-2xl max-[550px]:flex max-[550px]:flex-col max-[550px]:items-center">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800 border border-slate-700 text-primary-400 text-sm font-medium mb-6 justify-center">
                 <TrendingUp className="w-4 h-4" />
                 Simple & Effective
               </div>
