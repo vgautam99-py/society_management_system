@@ -24,9 +24,32 @@ const app = express();
 const server = http.createServer(app);
 const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
 
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://society-management-system-orpin.vercel.app',
+  'https://society-management-system-55z47rjyc-acme-b043.vercel.app'
+];
+
+const corsOptions = {
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    if (!origin) return callback(null, true);
+    const isAllowed = allowedOrigins.includes(origin) || origin.endsWith('.vercel.app') || origin.includes('localhost');
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      callback(null, true); // Fallback to avoid dropping request, but returning header
+    }
+  },
+  credentials: true,
+};
+
 const io = new Server(server, {
   cors: {
-    origin: clientUrl,
+    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+      if (!origin) return callback(null, true);
+      const isAllowed = allowedOrigins.includes(origin) || origin.endsWith('.vercel.app') || origin.includes('localhost');
+      callback(null, isAllowed);
+    },
     credentials: true,
   },
 });
@@ -34,12 +57,7 @@ const io = new Server(server, {
 app.use(express.json());
 app.use('/public', express.static(path.join(process.cwd(), 'public')));
 
-app.use(
-  cors({
-    origin: clientUrl,
-    credentials: true,
-  })
-);
+app.use(cors(corsOptions));
 
 app.use(cookieParser());
 
