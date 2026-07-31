@@ -177,8 +177,8 @@ export const register = async (req: Request, res: Response) => {
 
     res.cookie('token', token, {
       httpOnly: true, // Secure HTTP-only
-      sameSite: 'lax',
-      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'none',
+      secure: true,
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
     });
 
@@ -300,8 +300,8 @@ export const login = async (req: Request, res: Response) => {
 
     res.cookie('token', token, {
       httpOnly: true, // Make cookie secure and HTTP-only
-      sameSite: 'lax',
-      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'none',
+      secure: true,
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
     });
 
@@ -391,8 +391,8 @@ export const firebaseLogin = async (req: Request, res: Response) => {
 
     res.cookie('token', token, {
       httpOnly: true, // Make cookie secure and HTTP-only
-      sameSite: 'lax',
-      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'none',
+      secure: true,
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
     });
 
@@ -432,8 +432,8 @@ export const logout = async (req: AuthenticatedRequest, res: Response) => {
     res.cookie('token', null, {
       maxAge: 0,
       httpOnly: true,
-      sameSite: 'lax',
-      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'none',
+      secure: true,
     });
 
     res.status(200).json({

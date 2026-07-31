@@ -93,6 +93,17 @@ app.use('/api/v1/bills', billRoutes);
 app.use('/api/v1/payslips', payslipRoutes);
 app.use('/api/v1/payments', paymentRoutes);
 
+// Fallbacks for direct root-level requests (without /api/v1 prefix)
+app.use('/auth', authRoutes);
+app.use('/', UserRoutes);
+app.use('/roles', roleRoutes);
+app.use('/flats', flatRoutes);
+app.use('/complaints', complaintRoutes);
+app.use('/notices', noticeRoutes);
+app.use('/bills', billRoutes);
+app.use('/payslips', payslipRoutes);
+app.use('/payments', paymentRoutes);
+
 // Initialize notification service
 notificationService.init(io);
 
