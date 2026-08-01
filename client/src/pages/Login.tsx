@@ -58,6 +58,8 @@ const Login = () => {
   // Google popup sign in
   const handleFirebaseGoogleLogin = async () => {
     try {
+      // Force fresh sign-in session
+      await auth.signOut();
       const result = await signInWithPopup(auth, googleProvider);
       const idToken = await result.user.getIdToken();
       
