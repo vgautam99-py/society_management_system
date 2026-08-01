@@ -579,8 +579,6 @@ const Login = () => {
                               type="button"
                               onClick={() => {
                                 setIsRegistering(true);
-                                setLocalError(null);
-                                setLocalMessage(null);
                               }}
                               className="font-bold text-black hover:underline cursor-pointer bg-transparent border-none p-0 outline-none"
                             >
