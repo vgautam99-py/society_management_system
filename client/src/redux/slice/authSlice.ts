@@ -11,6 +11,7 @@ interface AuthState {
   username: string | null;
   role: 'Admin' | 'Staff' | 'Resident' | null;
   profilePhoto: string | null;
+  planName: string | null;
   error: any | null;
 }
 
@@ -23,6 +24,7 @@ const initialState: AuthState = {
   username: Cookies.get('username') || null,
   role: (Cookies.get('role') as any) || null,
   profilePhoto: Cookies.get('profilePhoto') || null,
+  planName: Cookies.get('planName') || null,
   error: null,
 };
 
@@ -138,18 +140,20 @@ const authSlice = createSlice({
         state.loading = false;
         state.message = action.payload.message;
         state.isAuthenticated = action.payload.authenticated;
-        const { name, email, username, role, id, profilePhoto } = action.payload.data;
+        const { name, email, username, role, id, profilePhoto, planName } = action.payload.data;
         state.name = name;
         state.role = role;
         state.email = email;
         state.username = username || '';
         state.profilePhoto = profilePhoto;
+        state.planName = planName || 'Free Trial';
         Cookies.set('name', name);
         Cookies.set('email', email);
         Cookies.set('username', username || '');
         Cookies.set('id', id);
         Cookies.set('role', role);
         Cookies.set('profilePhoto', profilePhoto || '');
+        Cookies.set('planName', planName || 'Free Trial');
         Cookies.set('isAuthenticated', action.payload.authenticated);
       })
       .addCase(login.rejected, (state, action: PayloadAction<any>) => {
@@ -164,18 +168,20 @@ const authSlice = createSlice({
         state.loading = false;
         state.message = action.payload.message;
         state.isAuthenticated = action.payload.authenticated;
-        const { name, email, username, role, id, profilePhoto } = action.payload.data;
+        const { name, email, username, role, id, profilePhoto, planName } = action.payload.data;
         state.name = name;
         state.role = role;
         state.email = email;
         state.username = username || '';
         state.profilePhoto = profilePhoto;
+        state.planName = planName || 'Free Trial';
         Cookies.set('name', name);
         Cookies.set('email', email);
         Cookies.set('username', username || '');
         Cookies.set('id', id);
         Cookies.set('role', role);
         Cookies.set('profilePhoto', profilePhoto || '');
+        Cookies.set('planName', planName || 'Free Trial');
         Cookies.set('isAuthenticated', action.payload.authenticated);
       })
       .addCase(firebaseLoginThunk.rejected, (state, action: PayloadAction<any>) => {
@@ -198,12 +204,14 @@ const authSlice = createSlice({
         state.username = null;
         state.role = null;
         state.profilePhoto = null;
+        state.planName = null;
         
         Cookies.remove('name');
         Cookies.remove('email');
         Cookies.remove('username');
         Cookies.remove('role');
         Cookies.remove('profilePhoto');
+        Cookies.remove('planName');
         Cookies.remove('id');
       });
   },

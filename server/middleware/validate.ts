@@ -30,24 +30,12 @@ export const registerSchema = z.object({
   phone: z.union([z.number(), z.string().regex(/^\d+$/).transform(val => Number(val))]).optional(),
   password: z.string().min(6, 'Password must be at least 6 characters'),
   societyName: z.string().min(2, 'Society name must be at least 2 characters'),
-  otp: z.string().length(6, 'OTP must be exactly 6 digits'),
 });
 
-// 2. Login Schema (Allows password OR OTP)
+// 2. Login Schema
 export const loginSchema = z.object({
   email: z.string().min(3, 'Email or username must be at least 3 characters'),
-  password: z.string().optional(),
-  otp: z.string().length(6, 'OTP must be exactly 6 digits').optional(),
-}).refine(data => {
-  return data.password || data.otp;
-}, {
-  message: 'Please provide either password or OTP code to login.',
-  path: ['password'],
-});
-
-// 3. OTP Send Schema
-export const sendOtpSchema = z.object({
-  email: z.string().min(3, 'Email or username must be at least 3 characters'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
 // 4. Pre-Auth Visitor Invitation Schema
