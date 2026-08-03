@@ -463,7 +463,7 @@ const LayoutWrapper = ({ children, navItems }: LayoutWrapperProps) => {
                     </button>
                     
                     <Link
-                      to="/dashboard/settings"
+                      to="/dashboard/profile"
                       onClick={() => setIsProfileOpen(false)}
                       className="w-full text-left px-4 py-2 text-xs text-zinc-700 hover:bg-zinc-50 hover:text-black flex items-center gap-2 cursor-pointer font-semibold"
                     >
