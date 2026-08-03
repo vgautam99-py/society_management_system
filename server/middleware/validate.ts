@@ -27,7 +27,7 @@ export const validate = (schema: z.ZodSchema) => {
 export const registerSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters long'),
   email: z.string().email('Invalid email address'),
-  phone: z.union([z.number(), z.string().regex(/^\d+$/).transform(val => Number(val))]).optional(),
+  phone: z.any().optional(),
   password: z.string().min(6, 'Password must be at least 6 characters'),
   societyName: z.string().min(2, 'Society name must be at least 2 characters'),
 });

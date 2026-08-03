@@ -143,7 +143,7 @@ const Login = () => {
       await axios.post(`${import.meta.env.VITE_API_URL}/auth/register`, {
         name: regFormData.name,
         email: regFormData.email,
-        phone: regFormData.phone ? Number(regFormData.phone) : undefined,
+        phone: regFormData.phone ? Number(regFormData.phone.replace(/\D/g, '')) : undefined,
         societyName: regFormData.societyName,
         password: regFormData.password,
       });
@@ -153,8 +153,13 @@ const Login = () => {
       setIsRegistering(false);
       setFormData({ email: regFormData.email, password: '' });
     } catch (err: any) {
-      const msg = err.response?.data?.message || err.response?.data?.error || 'Registration failed.';
-      toast.error(msg);
+      if (err.response?.data?.errors && Array.isArray(err.response.data.errors)) {
+        const errorDetail = err.response.data.errors.map((e: any) => `${e.field}: ${e.message}`).join(', ');
+        toast.error(`Validation Failed: ${errorDetail}`);
+      } else {
+        const msg = err.response?.data?.message || err.response?.data?.error || 'Registration failed.';
+        toast.error(msg);
+      }
     } finally {
       setRegLoading(false);
     }

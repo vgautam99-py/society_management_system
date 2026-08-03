@@ -200,13 +200,28 @@ export const firebaseLogin = async (req: Request, res: Response) => {
     }
 
     const firebaseEmail = resData.users[0].email;
+    const firebaseName = resData.users[0].displayName || 'New Admin';
+    const firebasePhoto = resData.users[0].photoUrl || '';
 
-    // Check if user is registered, role is Admin, and belongs to society
-    const user = await User.findOne({ email: firebaseEmail?.toLowerCase() });
+    // Check if user is registered, otherwise auto-register them
+    let user = await User.findOne({ email: firebaseEmail?.toLowerCase() });
     if (!user) {
-      return res.status(404).json({
-        message: `No registered account found for ${firebaseEmail}. Please register an account first.`,
+      // 1. Create a new Society
+      const newSocietyName = firebaseName ? `${firebaseName}'s Society` : 'TROPICS Society';
+      const newSociety = await Society.create({
+        name: newSocietyName,
       });
+
+      // 2. Create the Admin user linked to the new Society
+      user = await User.create({
+        name: firebaseName,
+        email: firebaseEmail.toLowerCase(),
+        role: 'Admin',
+        society: newSociety._id,
+        profilePhoto: firebasePhoto,
+        isActive: true,
+      });
+      console.log(`🔑 [Google Auto-Registration] Created Admin: ${user.email} for Society: ${newSocietyName}`);
     }
 
     if (user.role !== 'Admin') {
@@ -216,9 +231,11 @@ export const firebaseLogin = async (req: Request, res: Response) => {
     }
 
     if (!user.society) {
-      return res.status(400).json({
-        message: 'Your account is not registered to a society. Please contact support.',
+      const newSociety = await Society.create({
+        name: `${user.name}'s Society`,
       });
+      user.society = newSociety._id;
+      await user.save();
     }
 
     const payload = {
