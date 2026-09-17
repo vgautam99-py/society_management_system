@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   Building2, 
@@ -14,10 +14,14 @@ import {
   Mail,
   Phone,
   MapPin,
-  Lock
+  Lock,
+  Menu,
+  X
 } from 'lucide-react';
 
 const Home = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-primary-600 selection:text-white relative overflow-hidden">
       
@@ -26,20 +30,58 @@ const Home = () => {
       <div className="absolute top-1/3 left-0 w-[40rem] h-[40rem] bg-sky-100/30 rounded-full blur-3xl -z-10"></div>
 
       {/* Navigation Header */}
-      <nav className="flex flex-col min-[550px]:flex-row items-center justify-between gap-4 px-6 md:px-12 py-6 max-w-7xl mx-auto border-b border-slate-200/50">
-        <div className="flex items-center gap-3 justify-center cursor-pointer">
+      <nav className="relative px-6 md:px-12 py-6 max-w-7xl mx-auto border-b border-slate-200/50 flex items-center justify-between">
+        {/* Top Left: Logo */}
+        <Link to="/" className="flex items-center gap-3 cursor-pointer">
           <img src="/favicon.png" alt="TROPICS Logo" className="w-9 h-9 rounded-xl object-cover shadow-sm" />
           <span className="text-xl font-black tracking-tight text-slate-900 uppercase">TROPICS</span>
-        </div>
+        </Link>
         
-        <div className="flex items-center gap-8 justify-center">
-          <a href="#features" className="hidden min-[550px]:inline-block text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-primary-600 transition-colors">Features</a>
-          <a href="#pricing" className="hidden min-[550px]:inline-block text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-primary-600 transition-colors">Pricing</a>
-          <a href="#how-it-works" className="hidden min-[550px]:inline-block text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-primary-600 transition-colors">How It Works</a>
-          <Link to="/login" className="flex bg-brand-gradient hover:opacity-95 text-white text-xs font-bold uppercase tracking-wider px-5 py-3 rounded-xl transition-all shadow-md items-center gap-2 hover:-translate-y-0.5">
-            Login <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
+        {/* Top Right: Hamburger Toggle */}
+        <button
+          type="button"
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-all shadow-sm focus:outline-none cursor-pointer"
+          aria-label="Toggle navigation menu"
+        >
+          {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        </button>
+
+        {/* Hamburger Menu Overlay Dropdown */}
+        {isMenuOpen && (
+          <div className="absolute top-full right-6 left-6 md:left-auto md:w-80 mt-3 p-5 bg-white border border-slate-200/90 rounded-2xl shadow-2xl z-50 animate-fade-in flex flex-col gap-2">
+            <a 
+              href="#features" 
+              onClick={() => setIsMenuOpen(false)}
+              className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition-colors"
+            >
+              Features
+            </a>
+            <a 
+              href="#pricing" 
+              onClick={() => setIsMenuOpen(false)}
+              className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition-colors"
+            >
+              Pricing
+            </a>
+            <a 
+              href="#how-it-works" 
+              onClick={() => setIsMenuOpen(false)}
+              className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition-colors"
+            >
+              How It Works
+            </a>
+            <div className="pt-3 border-t border-slate-100 mt-1">
+              <Link 
+                to="/login" 
+                onClick={() => setIsMenuOpen(false)}
+                className="flex bg-brand-gradient hover:opacity-95 text-white text-xs font-bold uppercase tracking-wider px-5 py-3.5 rounded-xl transition-all shadow-md items-center justify-center gap-2 hover:-translate-y-0.5"
+              >
+                Login <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* Hero Section */}

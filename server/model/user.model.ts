@@ -28,7 +28,6 @@ export interface IUser extends Document {
   planStartDate?: Date;
   planEndDate?: Date;
   token?: string;
-  firebaseToken?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -140,9 +139,6 @@ const UserSchema = new Schema<IUser>(
       default: () => new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
     },
     token: {
-      type: String,
-    },
-    firebaseToken: {
       type: String,
     },
   },

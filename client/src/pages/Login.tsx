@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
-import { login, firebaseLoginThunk } from '../redux/slice/authSlice';
+import { login } from '../redux/slice/authSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 import { Eye, EyeOff, Mail, Lock, User as UserIcon, Building, Phone as PhoneIcon, ArrowLeft, Shield, Users } from 'lucide-react';
-import { auth, googleProvider } from '../lib/firebase';
-import { signInWithPopup } from 'firebase/auth';
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -53,30 +51,6 @@ const Login = () => {
       ...regFormData,
       [e.target.name]: e.target.value,
     });
-  };
-
-  // Google popup sign in
-  const handleFirebaseGoogleLogin = async () => {
-    try {
-      // Force fresh sign-in session
-      await auth.signOut();
-      const result = await signInWithPopup(auth, googleProvider);
-      const idToken = await result.user.getIdToken();
-      
-      dispatch(firebaseLoginThunk(idToken) as any)
-        .unwrap()
-        .then(() => {
-          toast.success("Google Login successful!");
-          setTimeout(() => navigate('/dashboard'), 1000);
-        })
-        .catch((err: any) => {
-          const msg = err?.message || err?.error || "Google Auth verification failed on backend.";
-          toast.error(msg);
-        });
-    } catch (err: any) {
-      console.error("Firebase popup error:", err);
-      toast.error(err.message || "Failed to sign in with Google.");
-    }
   };
 
   // Forgot Password request
@@ -182,12 +156,21 @@ const Login = () => {
         
         {/* VIEW 1: Role Selection Screen */}
         {selectedRole === null ? (
-          <div className="flex flex-col items-center justify-center py-6 text-center animate-fade-in">
-            <img src="/favicon.png" alt="TROPICS Logo" className="w-14 h-14 rounded-2xl object-cover shadow-md mb-4" />
+          <div className="flex flex-col items-center justify-center py-6 text-center animate-fade-in relative">
+            {/* Top-Left Circular Back Button to Landing Page */}
+            <Link 
+              to="/"
+              className="absolute top-0 left-0 w-9 h-9 rounded-full bg-slate-50 border border-slate-200 hover:bg-slate-100 flex items-center justify-center text-slate-600 hover:text-slate-900 transition-all shadow-sm cursor-pointer hover:scale-105 active:scale-95"
+              title="Back to Landing Page"
+            >
+              <ArrowLeft size={18} />
+            </Link>
+
+            <img src="/favicon.png" alt="TROPICS Logo" className="w-14 h-14 rounded-2xl object-cover shadow-md mb-4 mt-2" />
             <h1 className="text-2xl font-black tracking-tight text-slate-900 uppercase">TROPICS Portal</h1>
             <p className="text-xs text-slate-500 mb-8 max-w-xs">Select your portal access level to continue</p>
             
-            <div className="flex justify-center items-center gap-8 w-full">
+            <div className="flex justify-center items-center gap-8 w-full mb-2">
               {/* Admin Selector Circle */}
               <div className="flex flex-col items-center gap-2">
                 <button
@@ -212,24 +195,18 @@ const Login = () => {
                 <span className="text-xs font-bold tracking-wide text-slate-700">Others</span>
               </div>
             </div>
-
-            <div className="mt-10 pt-6 border-t border-zinc-100 w-full text-center">
-              <Link to="/" className="text-xs font-semibold text-zinc-500 hover:text-black hover:underline inline-flex items-center gap-1.5 transition-colors">
-                <ArrowLeft size={12} /> Back to Landing Page
-              </Link>
-            </div>
           </div>
         ) : (
           /* VIEW 2: Form Containers */
           <div className="animate-slide-up">
-            {/* Header Back Button */}
+            {/* Circular Header Back Button */}
             <button 
               type="button" 
               onClick={handleBackToSelection}
-              className="absolute top-6 left-6 p-2 text-zinc-400 hover:text-black hover:bg-zinc-50 rounded-xl transition-colors cursor-pointer"
+              className="absolute top-6 left-6 w-9 h-9 rounded-full bg-slate-50 border border-slate-200 hover:bg-slate-100 flex items-center justify-center text-slate-600 hover:text-slate-900 transition-all shadow-sm cursor-pointer hover:scale-105 active:scale-95"
               title="Change portal"
             >
-              <ArrowLeft size={16} />
+              <ArrowLeft size={18} />
             </button>
 
             {/* Title Headings */}
@@ -539,59 +516,22 @@ const Login = () => {
                       {loading ? 'Logging in...' : 'Login'}
                     </button>
 
-                    {/* Google Auth & Registration Toggles (ONLY for Admin Tab) */}
+                    {/* Registration Toggle (ONLY for Admin Tab) */}
                     {selectedRole === 'admin' && (
-                      <>
-                        <div className="relative flex items-center justify-center my-4">
-                          <div className="border-t border-zinc-200 w-full"></div>
-                          <span className="absolute bg-white px-3 text-[10px] text-zinc-400 font-bold uppercase tracking-wider">Or</span>
-                        </div>
-
-                        {/* Circular Google sign in icon & Google label */}
-                        <div className="flex flex-col items-center justify-center gap-1.5 my-3">
+                      <div className="mt-6 pt-4 border-t border-zinc-100 text-center">
+                        <span className="text-xs text-zinc-500">
+                          Don't have an account?{' '}
                           <button
                             type="button"
-                            onClick={handleFirebaseGoogleLogin}
-                            className="w-12 h-12 rounded-full border border-zinc-200 hover:border-black hover:bg-zinc-50 flex items-center justify-center transition-all duration-200 cursor-pointer shadow-sm hover:shadow bg-white"
-                            title="Sign In with Google"
+                            onClick={() => {
+                              setIsRegistering(true);
+                            }}
+                            className="font-bold text-black hover:underline cursor-pointer bg-transparent border-none p-0 outline-none"
                           >
-                            <svg className="w-6 h-6" viewBox="0 0 24 24">
-                              <path
-                                fill="#EA4335"
-                                d="M12 5.04c1.66 0 3.2.57 4.38 1.69l3.27-3.27C17.67 1.58 14.97 1 12 1 7.24 1 3.2 3.73 1.24 7.72l3.82 2.96C6.01 7.22 8.79 5.04 12 5.04z"
-                              />
-                              <path
-                                fill="#4285F4"
-                                d="M23.49 12.27c0-.81-.07-1.59-.2-2.34H12v4.51h6.46c-.29 1.48-1.14 2.73-2.42 3.58l3.76 2.91c2.2-2.03 3.69-5.02 3.69-8.66z"
-                              />
-                              <path
-                                fill="#FBBC05"
-                                d="M5.06 10.68c-.25-.72-.39-1.49-.39-2.28s.14-1.56.39-2.28L1.24 3.16C.45 4.76 0 6.55 0 8.4s.45 3.64 1.24 5.24l3.82-2.96z"
-                              />
-                              <path
-                                fill="#34A853"
-                                d="M12 23c3.24 0 5.97-1.07 7.96-2.91l-3.76-2.91c-1.1.74-2.5 1.18-4.2 1.18-3.21 0-5.99-2.18-6.94-5.64L1.24 15.68C3.2 19.67 7.24 23 12 23z"
-                              />
-                            </svg>
+                            Register Account
                           </button>
-                          <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Google</span>
-                        </div>
-
-                        <div className="mt-6 pt-4 border-t border-zinc-100 text-center">
-                          <span className="text-xs text-zinc-500">
-                            Don't have an account?{' '}
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setIsRegistering(true);
-                              }}
-                              className="font-bold text-black hover:underline cursor-pointer bg-transparent border-none p-0 outline-none"
-                            >
-                              Register Account
-                            </button>
-                          </span>
-                        </div>
-                      </>
+                        </span>
+                      </div>
                     )}
                   </form>
                 )}
