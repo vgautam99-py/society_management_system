@@ -69,61 +69,59 @@ const Home = () => {
 
       {/* Sliding Drawer */}
       <div 
-        className={`fixed top-0 right-0 w-72 h-full bg-white z-50 shadow-2xl transition-transform duration-300 ease-in-out transform md:hidden flex flex-col justify-between p-6 ${
+        className={`fixed top-0 right-0 w-72 h-full bg-white z-50 shadow-2xl transition-transform duration-300 ease-in-out transform md:hidden flex flex-col p-6 ${
           isMenuOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
-        <div>
-          {/* Drawer Header */}
-          <div className="flex items-center justify-between pb-6 border-b border-slate-100 mb-6">
-            <div className="flex items-center gap-2.5">
-              <img src="/favicon.png" alt="TROPICS Logo" className="w-8 h-8 rounded-lg object-cover" />
-              <span className="text-base font-black tracking-tight text-slate-900 uppercase">TROPICS</span>
-            </div>
-            <button 
-              type="button" 
-              onClick={() => setIsMenuOpen(false)}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
+        {/* Drawer Header */}
+        <div className="flex items-center justify-between pb-5 border-b border-slate-100 mb-4">
+          <div className="flex items-center gap-2.5">
+            <img src="/favicon.png" alt="TROPICS Logo" className="w-8 h-8 rounded-lg object-cover" />
+            <span className="text-base font-black tracking-tight text-slate-900 uppercase">TROPICS</span>
           </div>
-
-          {/* Sliding Menu Links */}
-          <div className="flex flex-col gap-2">
-            <a 
-              href="#features" 
-              onClick={() => setIsMenuOpen(false)}
-              className="px-4 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition-colors"
-            >
-              Features
-            </a>
-            <a 
-              href="#pricing" 
-              onClick={() => setIsMenuOpen(false)}
-              className="px-4 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition-colors"
-            >
-              Pricing
-            </a>
-            <a 
-              href="#how-it-works" 
-              onClick={() => setIsMenuOpen(false)}
-              className="px-4 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition-colors"
-            >
-              How It Works
-            </a>
-          </div>
+          <button 
+            type="button" 
+            onClick={() => setIsMenuOpen(false)}
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
-        {/* Login Button at bottom of Sliding Menu */}
-        <div className="pt-4 border-t border-slate-100">
-          <Link 
-            to="/login" 
+        {/* Sliding Menu Links & Login Button without large gap */}
+        <div className="flex flex-col gap-2">
+          <a 
+            href="#features" 
             onClick={() => setIsMenuOpen(false)}
-            className="flex bg-brand-gradient hover:opacity-95 text-white text-xs font-bold uppercase tracking-wider px-5 py-3.5 rounded-xl transition-all shadow-md items-center justify-center gap-2"
+            className="px-4 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition-colors"
           >
-            Login <ArrowRight className="w-4 h-4" />
-          </Link>
+            Features
+          </a>
+          <a 
+            href="#pricing" 
+            onClick={() => setIsMenuOpen(false)}
+            className="px-4 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition-colors"
+          >
+            Pricing
+          </a>
+          <a 
+            href="#how-it-works" 
+            onClick={() => setIsMenuOpen(false)}
+            className="px-4 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition-colors"
+          >
+            How It Works
+          </a>
+
+          {/* Login Button directly below items */}
+          <div className="pt-3 mt-1 border-t border-slate-100">
+            <Link 
+              to="/login" 
+              onClick={() => setIsMenuOpen(false)}
+              className="flex bg-brand-gradient hover:opacity-95 text-white text-xs font-bold uppercase tracking-wider px-5 py-3.5 rounded-xl transition-all shadow-md items-center justify-center gap-2"
+            >
+              Login <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
         </div>
       </div>
 
