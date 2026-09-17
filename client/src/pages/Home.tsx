@@ -31,58 +31,101 @@ const Home = () => {
 
       {/* Navigation Header */}
       <nav className="relative px-6 md:px-12 py-6 max-w-7xl mx-auto border-b border-slate-200/50 flex items-center justify-between">
-        {/* Top Left: Logo */}
-        <Link to="/" className="flex items-center gap-3 cursor-pointer">
-          <img src="/favicon.png" alt="TROPICS Logo" className="w-9 h-9 rounded-xl object-cover shadow-sm" />
-          <span className="text-xl font-black tracking-tight text-slate-900 uppercase">TROPICS</span>
+        {/* Top Left: Logo (larger width & height on PC screen) */}
+        <Link to="/" className="flex items-center gap-3 cursor-pointer group">
+          <img src="/favicon.png" alt="TROPICS Logo" className="w-9 h-9 md:w-12 md:h-12 rounded-xl object-cover shadow-sm transition-transform duration-300 group-hover:scale-105" />
+          <span className="text-xl md:text-2xl font-black tracking-tight text-slate-900 uppercase">TROPICS</span>
         </Link>
         
-        {/* Top Right: Hamburger Toggle */}
+        {/* Desktop (PC): Normal inline menu */}
+        <div className="hidden md:flex items-center gap-8">
+          <a href="#features" className="text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-indigo-600 transition-colors">Features</a>
+          <a href="#pricing" className="text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-indigo-600 transition-colors">Pricing</a>
+          <a href="#how-it-works" className="text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-indigo-600 transition-colors">How It Works</a>
+          <Link to="/login" className="flex bg-brand-gradient hover:opacity-95 text-white text-xs font-bold uppercase tracking-wider px-5 py-3 rounded-xl transition-all shadow-md items-center gap-2 hover:-translate-y-0.5">
+            Login <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+
+        {/* Mobile Screens ONLY: Hamburger Toggle Button */}
         <button
           type="button"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-all shadow-sm focus:outline-none cursor-pointer"
+          className="md:hidden p-2.5 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-all shadow-sm focus:outline-none cursor-pointer z-50"
           aria-label="Toggle navigation menu"
         >
           {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
+      </nav>
 
-        {/* Hamburger Menu Overlay Dropdown */}
-        {isMenuOpen && (
-          <div className="absolute top-full right-6 left-6 md:left-auto md:w-80 mt-3 p-5 bg-white border border-slate-200/90 rounded-2xl shadow-2xl z-50 animate-fade-in flex flex-col gap-2">
+      {/* Mobile Sliding System Drawer & Overlay (Mobile Screens Only) */}
+      {/* Backdrop Overlay */}
+      <div 
+        className={`fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-40 transition-opacity duration-300 md:hidden ${
+          isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
+        onClick={() => setIsMenuOpen(false)}
+      />
+
+      {/* Sliding Drawer */}
+      <div 
+        className={`fixed top-0 right-0 w-72 h-full bg-white z-50 shadow-2xl transition-transform duration-300 ease-in-out transform md:hidden flex flex-col justify-between p-6 ${
+          isMenuOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
+      >
+        <div>
+          {/* Drawer Header */}
+          <div className="flex items-center justify-between pb-6 border-b border-slate-100 mb-6">
+            <div className="flex items-center gap-2.5">
+              <img src="/favicon.png" alt="TROPICS Logo" className="w-8 h-8 rounded-lg object-cover" />
+              <span className="text-base font-black tracking-tight text-slate-900 uppercase">TROPICS</span>
+            </div>
+            <button 
+              type="button" 
+              onClick={() => setIsMenuOpen(false)}
+              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Sliding Menu Links */}
+          <div className="flex flex-col gap-2">
             <a 
               href="#features" 
               onClick={() => setIsMenuOpen(false)}
-              className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition-colors"
+              className="px-4 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition-colors"
             >
               Features
             </a>
             <a 
               href="#pricing" 
               onClick={() => setIsMenuOpen(false)}
-              className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition-colors"
+              className="px-4 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition-colors"
             >
               Pricing
             </a>
             <a 
               href="#how-it-works" 
               onClick={() => setIsMenuOpen(false)}
-              className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition-colors"
+              className="px-4 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition-colors"
             >
               How It Works
             </a>
-            <div className="pt-3 border-t border-slate-100 mt-1">
-              <Link 
-                to="/login" 
-                onClick={() => setIsMenuOpen(false)}
-                className="flex bg-brand-gradient hover:opacity-95 text-white text-xs font-bold uppercase tracking-wider px-5 py-3.5 rounded-xl transition-all shadow-md items-center justify-center gap-2 hover:-translate-y-0.5"
-              >
-                Login <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
           </div>
-        )}
-      </nav>
+        </div>
+
+        {/* Login Button at bottom of Sliding Menu */}
+        <div className="pt-4 border-t border-slate-100">
+          <Link 
+            to="/login" 
+            onClick={() => setIsMenuOpen(false)}
+            className="flex bg-brand-gradient hover:opacity-95 text-white text-xs font-bold uppercase tracking-wider px-5 py-3.5 rounded-xl transition-all shadow-md items-center justify-center gap-2"
+          >
+            Login <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+      </div>
 
       {/* Hero Section */}
       <main className="px-6 md:px-12 pt-24 pb-28 max-w-5xl mx-auto text-center relative z-10">
@@ -91,14 +134,15 @@ const Home = () => {
           Introducing TROPICS Society Platform
         </div>
         
-        <h1 className="text-4xl md:text-7xl font-black text-slate-950 tracking-tighter mb-8 leading-[1.05]">
+        <h1 className="text-4xl md:text-7xl font-black text-slate-950 tracking-tighter leading-[1.05]">
           Simplify Residential Living <br />
-          <span className="text-brand-gradient block mt-1.5">
+          <span className="text-brand-gradient block mt-2 md:mt-3">
             Smart Living, Simplified.
           </span>
         </h1>
         
-        <p className="text-sm md:text-base text-slate-500 max-w-2xl mx-auto mb-10 leading-relaxed font-medium">
+        {/* Paragraph with distinct top & bottom spacing gap from headline */}
+        <p className="text-sm md:text-base text-slate-500 max-w-2xl mx-auto mt-8 md:mt-12 mb-12 leading-relaxed font-medium">
           A premium, responsive community hub for smart residential complexes. Coordinate billing statements, monitor gatekeeper logs, and post notice bulletins on a unified dashboard.
         </p>
         
